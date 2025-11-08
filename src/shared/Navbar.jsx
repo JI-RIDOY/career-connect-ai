@@ -133,7 +133,7 @@ const Navbar = () => {
                 <input
                   type="text"
                   placeholder="Search jobs, companies, or skills..."
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50/70 border border-gray-200/80 rounded-2xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 backdrop-blur-sm text-sm font-medium placeholder-gray-400 group-hover:bg-white/80 group-hover:border-gray-300/80"
+                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50/70 border border-gray-200/80 rounded-2xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 backdrop-blur-sm text-sm font-medium placeholder-gray-400 group-hover:bg-white/80 "
                 />
               </div>
             </motion.div>
@@ -153,7 +153,7 @@ const Navbar = () => {
                       `flex items-center space-x-2 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 relative group ${
                         isActive
                           ? 'bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-blue-600 border border-blue-200/50 shadow-lg shadow-blue-500/10'
-                          : 'text-gray-600 hover:text-blue-600 hover:bg-white/80 hover:shadow-lg hover:border hover:border-gray-200/50'
+                          : 'text-gray-600 hover:text-blue-600 hover:bg-white/80 hover:shadow-lg '
                       }`
                     }
                   >
