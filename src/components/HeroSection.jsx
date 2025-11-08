@@ -393,7 +393,7 @@ const HeroSection = () => {
                                         disabled={isLoading || !inputMessage.trim()}
                                         className="bg-blue-500 text-white p-3 rounded-2xl hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                                     >
-                                        <FaPaperPlane className="text-sm" />
+                                        <FaPaperPlane className="text-sm mx-2" />
                                     </motion.button>
                                 </div>
                                 <p className="text-xs text-gray-500 text-center mt-3">
