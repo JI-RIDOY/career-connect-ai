@@ -263,7 +263,7 @@ const Navbar = () => {
         variants={floatingNavVariants}
         initial="hidden"
         animate="visible"
-        className="md:hidden fixed bottom-6 left-4 right-4 bg-white/95 backdrop-blur-2xl border border-gray-200/80 rounded-2xl shadow-xl shadow-black/10 z-50"
+        className="md:hidden fixed bottom-0 left-4 right-4 bg-white/95 backdrop-blur-2xl border border-gray-200/80 rounded-2xl shadow-xl shadow-black/10 z-50"
       >
         <div className="flex justify-around items-center h-16 px-2">
           {navItems.map((item) => (
