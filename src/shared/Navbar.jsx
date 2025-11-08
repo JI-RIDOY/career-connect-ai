@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router';
+import { Link, NavLink, useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaHome,
@@ -10,12 +10,11 @@ import {
   FaTimes,
   FaBars,
   FaSearch,
-  FaBriefcase,
 } from 'react-icons/fa';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const navigate = useNavigate()
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -103,20 +102,12 @@ const Navbar = () => {
               className="flex items-center"
             >
               <NavLink to="/" className="flex items-center space-x-3">
-                <motion.div
-                  whileHover={{ 
-                    rotate: [0, -10, 10, 0],
-                    transition: { duration: 0.5 }
-                  }}
-                  className="w-12 h-12 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20"
-                >
-                  <FaBriefcase className="text-white text-xl" />
-                </motion.div>
-                <div className="flex flex-col">
-                  <span className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-purple-700 bg-clip-text text-transparent">
-                    hired
-                  </span>
-                  <span className="text-xs text-gray-500 -mt-1 font-medium">Find your dream job</span>
+                <div>
+                  <img src="/logo.jpg" alt="LOGO" className='h-10 w-10'/>
+                </div>
+                <div className='flex flex-col'>
+                  <span className=' text-2xl font-bold text-blue-500'>Career</span>
+                  <span className='text-sm font-bold text-blue-400'>Connect AI</span>
                 </div>
               </NavLink>
             </motion.div>
@@ -152,8 +143,8 @@ const Navbar = () => {
                     className={({ isActive }) =>
                       `flex items-center space-x-2 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 relative group ${
                         isActive
-                          ? 'bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-blue-600 border border-blue-200/50 shadow-lg shadow-blue-500/10'
-                          : 'text-gray-600 hover:text-blue-600 hover:bg-white/80 hover:shadow-lg '
+                          ? 'text-blue-600 border border-blue-200/50'
+                          : 'text-gray-600 hover:text-blue-600 backdrop-blur-2xl hover:shadow-lg '
                       }`
                     }
                   >
@@ -192,10 +183,11 @@ const Navbar = () => {
                   boxShadow: "0 20px 40px -10px rgba(59, 130, 246, 0.4)" 
                 }}
                 whileTap={{ scale: 0.98 }}
-                className="bg-gradient-to-r from-blue-600 to-purple-700 text-white px-7 py-2.5 rounded-2xl text-sm font-semibold hover:shadow-xl transition-all duration-200 flex items-center space-x-2 shadow-lg shadow-blue-500/25"
+                onClick={() => navigate('/auth/login')}
+                className="bg-blue-400 text-white ml-4 px-7 py-2.5 rounded-2xl text-sm font-semibold hover:shadow-xl transition-all duration-200 flex items-center space-x-2 shadow-lg shadow-blue-500/25"
               >
                 <FaUserPlus className="text-sm" />
-                <span>Sign Up</span>
+                <span>Login</span>
               </motion.button>
             </motion.div>
 
@@ -253,10 +245,11 @@ const Navbar = () => {
                   <motion.button 
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-purple-700 text-white px-4 py-3.5 rounded-2xl text-base font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg shadow-blue-500/25"
+                    onClick={() => navigate('/auth/login')}
+                    className="flex-1 bg-blue-400 text-white px-4 py-3.5 rounded-2xl text-base font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg shadow-blue-500/25"
                   >
                     <FaUserPlus className="text-base" />
-                    <span>Sign Up</span>
+                    <span>Login</span>
                   </motion.button>
                 </motion.div>
               </div>
