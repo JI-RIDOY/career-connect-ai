@@ -105,7 +105,7 @@ const Navbar = () => {
                 <div>
                   <img src="/logo.jpg" alt="LOGO" className='h-10 w-10'/>
                 </div>
-                <div className='flex flex-col'>
+                <div className='flex flex-col hidden lg:flex'>
                   <span className=' text-2xl font-bold text-blue-500'>Career</span>
                   <span className='text-sm font-bold text-blue-400'>Connect AI</span>
                 </div>
@@ -184,10 +184,10 @@ const Navbar = () => {
                 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate('/auth/login')}
-                className="bg-blue-400 text-white ml-4 px-7 py-2.5 rounded-2xl text-sm font-semibold hover:shadow-xl transition-all duration-200 flex items-center space-x-2 shadow-lg shadow-blue-500/25"
+                className="bg-blue-400 text-white ml-4 px-7 py-2.5 cursor-pointer rounded-2xl text-sm font-semibold hover:shadow-xl transition-all duration-200 flex items-center space-x-2 shadow-lg shadow-blue-500/25"
               >
                 <FaUserPlus className="text-sm" />
-                <span>Login</span>
+                <span>Get Started</span>
               </motion.button>
             </motion.div>
 
@@ -246,10 +246,10 @@ const Navbar = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => navigate('/auth/login')}
-                    className="flex-1 bg-blue-400 text-white px-4 py-3.5 rounded-2xl text-base font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg shadow-blue-500/25"
+                    className="flex-1 bg-blue-400 text-white px-4 py-3.5 rounded-2xl cursor-pointer text-base font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg shadow-blue-500/25"
                   >
                     <FaUserPlus className="text-base" />
-                    <span>Login</span>
+                    <span>Get Started</span>
                   </motion.button>
                 </motion.div>
               </div>

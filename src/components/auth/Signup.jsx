@@ -451,14 +451,6 @@ const SignUp = () => {
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: "spring" }}
-            className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-green-500/25"
-          >
-            <FaUser className="text-white text-2xl" />
-          </motion.div>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
             Join Career Connect AI
           </h2>
