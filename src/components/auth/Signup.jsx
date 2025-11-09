@@ -1,6 +1,6 @@
 // src/components/auth/SignUp.jsx
-import React, { useState } from 'react';
-import { Link } from 'react-router';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaGithub, 
@@ -16,8 +16,10 @@ import {
   FaUpload,
   FaUser,
   FaBriefcase,
-  FaCheck
+  FaCheck,
+  FaExclamationTriangle
 } from 'react-icons/fa';
+import { useAuth } from '../../contexts/AuthContext';
 
 const SignUp = () => {
   const [signupMethod, setSignupMethod] = useState('email');
@@ -36,16 +38,36 @@ const SignUp = () => {
     photoPreview: ''
   });
 
+  const { signUp, signInWithGoogle, error, clearError, currentUser } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect if user is already logged in
+  useEffect(() => {
+    if (currentUser) {
+      navigate('/dashboard');
+    }
+  }, [currentUser, navigate]);
+
+  // Clear error when component unmounts or form changes
+  useEffect(() => {
+    return () => clearError();
+  }, [clearError]);
+
   const signupMethods = [
     { id: 'email', name: 'Email', icon: FaEnvelope },
     { id: 'phone', name: 'Phone', icon: FaPhone },
   ];
 
   const socialLogins = [
-    { name: 'Google', icon: FaGoogle, color: 'border border-gray-200 text-gray-700 hover:shadow-lg' },
-    { name: 'GitHub', icon: FaGithub, color: 'border border-gray-200 text-gray-700 hover:shadow-lg' },
-    { name: 'Facebook', icon: FaFacebook, color: 'border border-gray-200 text-gray-700 hover:shadow-lg' },
-    { name: 'Apple', icon: FaApple, color: 'border border-gray-200 text-gray-700 hover:shadow-lg' },
+    { 
+      name: 'Google', 
+      icon: FaGoogle, 
+      color: 'border border-gray-200 text-gray-700 hover:shadow-lg',
+      handler: handleGoogleSignUp
+    },
+    { name: 'GitHub', icon: FaGithub, color: 'border border-gray-200 text-gray-700 hover:shadow-lg', handler: () => {} },
+    { name: 'Facebook', icon: FaFacebook, color: 'border border-gray-200 text-gray-700 hover:shadow-lg', handler: () => {} },
+    { name: 'Apple', icon: FaApple, color: 'border border-gray-200 text-gray-700 hover:shadow-lg', handler: () => {} },
   ];
 
   const professions = [
@@ -75,6 +97,16 @@ const SignUp = () => {
     { number: 3, title: 'Complete' }
   ];
 
+  async function handleGoogleSignUp() {
+    try {
+      clearError();
+      await signInWithGoogle();
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Google sign up failed:', error);
+    }
+  }
+
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
     
@@ -93,20 +125,62 @@ const SignUp = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    clearError();
+
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
     } else {
-      console.log('Signup data:', formData);
-      // Handle signup logic here
+      try {
+        // Handle email/password signup
+        if (signupMethod === 'email') {
+          if (formData.password !== formData.confirmPassword) {
+            setError("Passwords don't match");
+            return;
+          }
+
+          const userData = {
+            fullName: formData.fullName,
+            photoURL: formData.photoPreview,
+            location: formData.location,
+            profession: formData.profession,
+            userType: formData.userType
+          };
+
+          await signUp(formData.email, formData.password, userData);
+          setCurrentStep(4);
+        }
+      } catch (error) {
+        console.error('Signup failed:', error);
+      }
     }
   };
 
   const handleBack = () => {
+    clearError();
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
+  };
+
+  // Error display component
+  const ErrorMessage = () => {
+    if (!error) return null;
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start space-x-3"
+      >
+        <FaExclamationTriangle className="text-red-500 mt-0.5 flex-shrink-0" />
+        <div>
+          <p className="text-red-800 text-sm font-medium">Sign up failed</p>
+          <p className="text-red-600 text-sm mt-1">{error}</p>
+        </div>
+      </motion.div>
+    );
   };
 
   const renderStep1 = () => (
@@ -123,7 +197,10 @@ const SignUp = () => {
           <button
             key={method.id}
             type="button"
-            onClick={() => setSignupMethod(method.id)}
+            onClick={() => {
+              clearError();
+              setSignupMethod(method.id);
+            }}
             className={`flex-1 flex items-center justify-center py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-300 ${
               signupMethod === method.id
                 ? 'bg-white text-blue-600 shadow-lg shadow-blue-500/10'
@@ -237,6 +314,7 @@ const SignUp = () => {
     </motion.div>
   );
 
+  // ... rest of your renderStep2, renderStep3, and renderCompletion functions remain the same
   const renderStep2 = () => (
     <motion.div
       key="step2"
@@ -459,6 +537,9 @@ const SignUp = () => {
           </p>
         </div>
 
+        {/* Error Message */}
+        <ErrorMessage />
+
         {/* Progress Steps */}
         {currentStep <= 3 && (
           <div className="mb-8">
@@ -538,6 +619,7 @@ const SignUp = () => {
                 boxShadow: "0 20px 40px -10px rgba(59, 130, 246, 0.4)" 
               }}
               whileTap={{ scale: 0.98 }}
+              onClick={() => navigate('/dashboard')}
               className="w-full bg-blue-500 text-white py-4 px-6 rounded-2xl text-base font-semibold hover:shadow-xl transition-all duration-200 shadow-lg shadow-blue-500/25 mt-6"
             >
               Get Started
@@ -562,6 +644,7 @@ const SignUp = () => {
                 <motion.button
                   key={social.name}
                   type="button"
+                  onClick={social.handler}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className={`${social.color} py-3 px-4 rounded-2xl text-sm font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2 bg-white/50 backdrop-blur-sm`}

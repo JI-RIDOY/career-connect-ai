@@ -1,6 +1,6 @@
 // src/components/auth/Login.jsx
-import React, { useState } from 'react';
-import { Link } from 'react-router';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaGithub, 
@@ -12,8 +12,10 @@ import {
   FaLock,
   FaEye,
   FaEyeSlash,
-  FaArrowLeft
+  FaArrowLeft,
+  FaExclamationTriangle
 } from 'react-icons/fa';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Login = () => {
   const [loginMethod, setLoginMethod] = useState('email');
@@ -24,17 +26,47 @@ const Login = () => {
     password: ''
   });
 
+  const { logIn, signInWithGoogle, error, clearError, currentUser } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect if user is already logged in
+  useEffect(() => {
+    if (currentUser) {
+      navigate('/dashboard');
+    }
+  }, [currentUser, navigate]);
+
+  // Clear error when component unmounts
+  useEffect(() => {
+    return () => clearError();
+  }, [clearError]);
+
   const loginMethods = [
     { id: 'email', name: 'Email', icon: FaEnvelope },
     { id: 'phone', name: 'Phone', icon: FaPhone },
   ];
 
   const socialLogins = [
-    { name: 'Google', icon: FaGoogle, color: 'border border-gray-200 text-gray-700 hover:shadow-lg' },
-    { name: 'GitHub', icon: FaGithub, color: 'border border-gray-200 text-gray-700 hover:shadow-lg' },
-    { name: 'Facebook', icon: FaFacebook, color: 'border border-gray-200 text-gray-700 hover:shadow-lg' },
-    { name: 'Apple', icon: FaApple, color: 'border border-gray-200 text-gray-700 hover:shadow-lg' },
+    { 
+      name: 'Google', 
+      icon: FaGoogle, 
+      color: 'border border-gray-200 text-gray-700 hover:shadow-lg',
+      handler: handleGoogleLogin
+    },
+    { name: 'GitHub', icon: FaGithub, color: 'border border-gray-200 text-gray-700 hover:shadow-lg', handler: () => {} },
+    { name: 'Facebook', icon: FaFacebook, color: 'border border-gray-200 text-gray-700 hover:shadow-lg', handler: () => {} },
+    { name: 'Apple', icon: FaApple, color: 'border border-gray-200 text-gray-700 hover:shadow-lg', handler: () => {} },
   ];
+
+  async function handleGoogleLogin() {
+    try {
+      clearError();
+      await signInWithGoogle();
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Google login failed:', error);
+    }
+  }
 
   const handleInputChange = (e) => {
     setFormData({
@@ -43,10 +75,38 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login data:', formData);
-    // Handle login logic here
+    clearError();
+
+    try {
+      if (loginMethod === 'email') {
+        await logIn(formData.email, formData.password);
+        navigate('/dashboard');
+      }
+      // Handle phone login here if needed
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
+  };
+
+  // Error display component
+  const ErrorMessage = () => {
+    if (!error) return null;
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start space-x-3"
+      >
+        <FaExclamationTriangle className="text-red-500 mt-0.5 flex-shrink-0" />
+        <div>
+          <p className="text-red-800 text-sm font-medium">Login failed</p>
+          <p className="text-red-600 text-sm mt-1">{error}</p>
+        </div>
+      </motion.div>
+    );
   };
 
   return (
@@ -83,12 +143,18 @@ const Login = () => {
           </p>
         </div>
 
+        {/* Error Message */}
+        <ErrorMessage />
+
         {/* Login Method Tabs */}
         <div className="flex space-x-2 p-1 bg-gray-100/50 rounded-2xl mb-6">
           {loginMethods.map((method) => (
             <button
               key={method.id}
-              onClick={() => setLoginMethod(method.id)}
+              onClick={() => {
+                clearError();
+                setLoginMethod(method.id);
+              }}
               className={`flex-1 flex items-center justify-center py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-300 ${
                 loginMethod === method.id
                   ? 'bg-white text-blue-600 shadow-lg shadow-blue-500/10'
@@ -230,6 +296,7 @@ const Login = () => {
           {socialLogins.map((social) => (
             <motion.button
               key={social.name}
+              onClick={social.handler}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className={`${social.color} py-3 px-4 rounded-2xl text-sm font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2 bg-white/50 backdrop-blur-sm`}
