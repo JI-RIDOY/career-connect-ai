@@ -26,15 +26,15 @@ const Login = () => {
     password: ''
   });
 
-  const { logIn, signInWithGoogle, error, clearError, currentUser } = useAuth();
+  const { logIn, signInWithGoogle, error, clearError, user } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if user is already logged in
   useEffect(() => {
-    if (currentUser) {
+    if (user) {
       navigate('/dashboard');
     }
-  }, [currentUser, navigate]);
+  }, [user, navigate]);
 
   // Clear error when component unmounts
   useEffect(() => {

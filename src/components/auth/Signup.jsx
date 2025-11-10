@@ -38,15 +38,15 @@ const SignUp = () => {
     photoPreview: ''
   });
 
-  const { signUp, signInWithGoogle, error, clearError, currentUser } = useAuth();
+  const { signUp, signInWithGoogle, error, clearError, user } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if user is already logged in
   useEffect(() => {
-    if (currentUser) {
+    if (user) {
       navigate('/dashboard');
     }
-  }, [currentUser, navigate]);
+  }, [user, navigate]);
 
   // Clear error when component unmounts or form changes
   useEffect(() => {

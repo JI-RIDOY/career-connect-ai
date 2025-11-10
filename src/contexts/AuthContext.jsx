@@ -23,7 +23,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
+  const [user, setuser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const auth = getAuth(app);
@@ -98,8 +98,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setuser(currentUser);
       setLoading(false);
     });
 
@@ -107,7 +107,7 @@ export const AuthProvider = ({ children }) => {
   }, [auth]);
 
   const value = {
-    currentUser,
+    user,
     signUp,
     logIn,
     signInWithGoogle,
