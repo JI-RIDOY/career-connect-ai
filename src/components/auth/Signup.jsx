@@ -7,7 +7,6 @@ import {
   FaGoogle, 
   FaFacebook, 
   FaApple,
-  FaPhone,
   FaEnvelope,
   FaLock,
   FaEye,
@@ -22,11 +21,9 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 
 const SignUp = () => {
-  const [signupMethod, setSignupMethod] = useState('email');
   const [showPassword, setShowPassword] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    phone: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -52,11 +49,6 @@ const SignUp = () => {
   useEffect(() => {
     return () => clearError();
   }, [clearError]);
-
-  const signupMethods = [
-    { id: 'email', name: 'Email', icon: FaEnvelope },
-    { id: 'phone', name: 'Phone', icon: FaPhone },
-  ];
 
   const socialLogins = [
     { 
@@ -133,24 +125,21 @@ const SignUp = () => {
       setCurrentStep(currentStep + 1);
     } else {
       try {
-        // Handle email/password signup
-        if (signupMethod === 'email') {
-          if (formData.password !== formData.confirmPassword) {
-            setError("Passwords don't match");
-            return;
-          }
-
-          const userData = {
-            fullName: formData.fullName,
-            photoURL: formData.photoPreview,
-            location: formData.location,
-            profession: formData.profession,
-            userType: formData.userType
-          };
-
-          await signUp(formData.email, formData.password, userData);
-          setCurrentStep(4);
+        if (formData.password !== formData.confirmPassword) {
+          setError("Passwords don't match");
+          return;
         }
+
+        const userData = {
+          fullName: formData.fullName,
+          photoURL: formData.photoPreview,
+          location: formData.location,
+          profession: formData.profession,
+          userType: formData.userType
+        };
+
+        await signUp(formData.email, formData.password, userData);
+        setCurrentStep(4);
       } catch (error) {
         console.error('Signup failed:', error);
       }
@@ -191,130 +180,69 @@ const SignUp = () => {
       exit={{ opacity: 0, x: -20 }}
       className="space-y-6"
     >
-      {/* Signup Method Tabs */}
-      <div className="flex space-x-2 p-1 bg-gray-100/50 rounded-2xl mb-6">
-        {signupMethods.map((method) => (
-          <button
-            key={method.id}
-            type="button"
-            onClick={() => {
-              clearError();
-              setSignupMethod(method.id);
-            }}
-            className={`flex-1 flex items-center justify-center py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-300 ${
-              signupMethod === method.id
-                ? 'bg-white text-blue-600 shadow-lg shadow-blue-500/10'
-                : 'text-gray-600 hover:text-blue-600'
-            }`}
-          >
-            <method.icon className="mr-2 text-base" />
-            {method.name}
-          </button>
-        ))}
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Email Address
+          </label>
+          <div className="relative group">
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              placeholder="you@example.com"
+              className="w-full pl-12 pr-4 py-3.5 bg-gray-50/70 border border-gray-200/80 rounded-2xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 text-sm font-medium placeholder-gray-400 group-hover:bg-white/80"
+              required
+            />
+            <FaEnvelope className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm transition-colors duration-200 group-focus-within:text-blue-500" />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Password
+          </label>
+          <div className="relative group">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              placeholder="Create a strong password"
+              className="w-full pl-12 pr-12 py-3.5 bg-gray-50/70 border border-gray-200/80 rounded-2xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 text-sm font-medium placeholder-gray-400 group-hover:bg-white/80"
+              required
+            />
+            <FaLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm transition-colors duration-200 group-focus-within:text-blue-500" />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Confirm Password
+          </label>
+          <div className="relative group">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              placeholder="Confirm your password"
+              className="w-full pl-12 pr-12 py-3.5 bg-gray-50/70 border border-gray-200/80 rounded-2xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 text-sm font-medium placeholder-gray-400 group-hover:bg-white/80"
+              required
+            />
+            <FaLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm transition-colors duration-200 group-focus-within:text-blue-500" />
+          </div>
+        </div>
       </div>
-
-      <AnimatePresence mode="wait">
-        {signupMethod === 'phone' && (
-          <motion.div
-            key="phone"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-4"
-          >
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Phone Number
-              </label>
-              <div className="relative group">
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  placeholder="+1 (555) 000-0000"
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50/70 border border-gray-200/80 rounded-2xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 text-sm font-medium placeholder-gray-400 group-hover:bg-white/80"
-                  required
-                />
-                <FaPhone className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm transition-colors duration-200 group-focus-within:text-blue-500" />
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {signupMethod === 'email' && (
-          <motion.div
-            key="email"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-4"
-          >
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
-              </label>
-              <div className="relative group">
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="you@example.com"
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50/70 border border-gray-200/80 rounded-2xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 text-sm font-medium placeholder-gray-400 group-hover:bg-white/80"
-                  required
-                />
-                <FaEnvelope className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm transition-colors duration-200 group-focus-within:text-blue-500" />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <div className="relative group">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="Create a strong password"
-                  className="w-full pl-12 pr-12 py-3.5 bg-gray-50/70 border border-gray-200/80 rounded-2xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 text-sm font-medium placeholder-gray-400 group-hover:bg-white/80"
-                  required
-                />
-                <FaLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm transition-colors duration-200 group-focus-within:text-blue-500" />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                >
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
-                </button>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Confirm Password
-              </label>
-              <div className="relative group">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  placeholder="Confirm your password"
-                  className="w-full pl-12 pr-12 py-3.5 bg-gray-50/70 border border-gray-200/80 rounded-2xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 text-sm font-medium placeholder-gray-400 group-hover:bg-white/80"
-                  required
-                />
-                <FaLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm transition-colors duration-200 group-focus-within:text-blue-500" />
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 
-  // ... rest of your renderStep2, renderStep3, and renderCompletion functions remain the same
   const renderStep2 = () => (
     <motion.div
       key="step2"

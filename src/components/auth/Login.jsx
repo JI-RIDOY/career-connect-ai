@@ -7,7 +7,6 @@ import {
   FaGoogle, 
   FaFacebook, 
   FaApple,
-  FaPhone,
   FaEnvelope,
   FaLock,
   FaEye,
@@ -18,10 +17,8 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 
 const Login = () => {
-  const [loginMethod, setLoginMethod] = useState('email');
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    phone: '',
     email: '',
     password: ''
   });
@@ -40,11 +37,6 @@ const Login = () => {
   useEffect(() => {
     return () => clearError();
   }, [clearError]);
-
-  const loginMethods = [
-    { id: 'email', name: 'Email', icon: FaEnvelope },
-    { id: 'phone', name: 'Phone', icon: FaPhone },
-  ];
 
   const socialLogins = [
     { 
@@ -80,11 +72,8 @@ const Login = () => {
     clearError();
 
     try {
-      if (loginMethod === 'email') {
-        await logIn(formData.email, formData.password);
-        navigate('/dashboard');
-      }
-      // Handle phone login here if needed
+      await logIn(formData.email, formData.password);
+      navigate('/dashboard');
     } catch (error) {
       console.error('Login failed:', error);
     }
@@ -146,126 +135,65 @@ const Login = () => {
         {/* Error Message */}
         <ErrorMessage />
 
-        {/* Login Method Tabs */}
-        <div className="flex space-x-2 p-1 bg-gray-100/50 rounded-2xl mb-6">
-          {loginMethods.map((method) => (
-            <button
-              key={method.id}
-              onClick={() => {
-                clearError();
-                setLoginMethod(method.id);
-              }}
-              className={`flex-1 flex items-center justify-center py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-300 ${
-                loginMethod === method.id
-                  ? 'bg-white text-blue-600 shadow-lg shadow-blue-500/10'
-                  : 'text-gray-600 hover:text-blue-600'
-              }`}
-            >
-              <method.icon className="mr-2 text-base" />
-              {method.name}
-            </button>
-          ))}
-        </div>
-
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          <AnimatePresence mode="wait">
-            {loginMethod === 'phone' && (
-              <motion.div
-                key="phone"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-4"
-              >
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Phone Number
-                  </label>
-                  <div className="relative group">
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      placeholder="+1 (555) 000-0000"
-                      className="w-full pl-12 pr-4 py-3.5 bg-gray-50/70 border border-gray-200/80 rounded-2xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 text-sm font-medium placeholder-gray-400 group-hover:bg-white/80"
-                      required
-                    />
-                    <FaPhone className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm transition-colors duration-200 group-focus-within:text-blue-500" />
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {loginMethod === 'email' && (
-              <motion.div
-                key="email"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-4"
-              >
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address
-                  </label>
-                  <div className="relative group">
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      placeholder="you@example.com"
-                      className="w-full pl-12 pr-4 py-3.5 bg-gray-50/70 border border-gray-200/80 rounded-2xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 text-sm font-medium placeholder-gray-400 group-hover:bg-white/80"
-                      required
-                    />
-                    <FaEnvelope className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm transition-colors duration-200 group-focus-within:text-blue-500" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Password
-                  </label>
-                  <div className="relative group">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      placeholder="Enter your password"
-                      className="w-full pl-12 pr-12 py-3.5 bg-gray-50/70 border border-gray-200/80 rounded-2xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 text-sm font-medium placeholder-gray-400 group-hover:bg-white/80"
-                      required
-                    />
-                    <FaLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm transition-colors duration-200 group-focus-within:text-blue-500" />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                    >
-                      {showPassword ? <FaEyeSlash /> : <FaEye />}
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address
+              </label>
+              <div className="relative group">
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="you@example.com"
+                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50/70 border border-gray-200/80 rounded-2xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 text-sm font-medium placeholder-gray-400 group-hover:bg-white/80"
+                  required
+                />
+                <FaEnvelope className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm transition-colors duration-200 group-focus-within:text-blue-500" />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
+              <div className="relative group">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="Enter your password"
+                  className="w-full pl-12 pr-12 py-3.5 bg-gray-50/70 border border-gray-200/80 rounded-2xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 text-sm font-medium placeholder-gray-400 group-hover:bg-white/80"
+                  required
+                />
+                <FaLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm transition-colors duration-200 group-focus-within:text-blue-500" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
+            </div>
+          </div>
 
           {/* Remember Me & Forgot Password */}
-          {loginMethod === 'email' && (
-            <div className="flex items-center justify-between">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                />
-                <span className="ml-2 text-sm text-gray-600">Remember me</span>
-              </label>
-              <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200">
-                Forgot password?
-              </a>
-            </div>
-          )}
+          <div className="flex items-center justify-between">
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+              />
+              <span className="ml-2 text-sm text-gray-600">Remember me</span>
+            </label>
+            <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200">
+              Forgot password?
+            </a>
+          </div>
 
           {/* Submit Button */}
           <motion.button

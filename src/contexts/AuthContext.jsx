@@ -23,7 +23,8 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setuser] = useState(null);
+  const [user, setUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const auth = getAuth(app);
@@ -34,20 +35,78 @@ export const AuthProvider = ({ children }) => {
     prompt: 'select_account'
   });
 
+  // Save user to backend
+  const saveUserToBackend = async (userData) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.message || 'Failed to save user to database');
+      }
+
+      return result.user;
+    } catch (error) {
+      console.error('Error saving user to backend:', error);
+      throw error;
+    }
+  };
+
+  // Get user from backend
+  const getUserFromBackend = async (uid) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/users/${uid}`);
+      const result = await response.json();
+      
+      if (result.success) {
+        return result.user;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error fetching user from backend:', error);
+      return null;
+    }
+  };
+
   // Sign up with email and password
   const signUp = async (email, password, userData) => {
     try {
       setError('');
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
       
       // Update user profile with additional data
       if (userData) {
-        await updateProfile(userCredential.user, {
+        await updateProfile(user, {
           displayName: userData.fullName,
           photoURL: userData.photoURL
         });
       }
-      
+
+      // Prepare user data for backend
+      const backendUserData = {
+        uid: user.uid,
+        email: user.email,
+        displayName: userData?.fullName || '',
+        photoURL: userData?.photoURL || '',
+        location: userData?.location || '',
+        profession: userData?.profession || '',
+        userType: userData?.userType || '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      // Save user to backend
+      const savedUser = await saveUserToBackend(backendUserData);
+      setUserProfile(savedUser);
+
       return userCredential;
     } catch (error) {
       setError(error.message);
@@ -59,7 +118,13 @@ export const AuthProvider = ({ children }) => {
   const logIn = async (email, password) => {
     try {
       setError('');
-      return await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      // Fetch user profile from backend
+      const userProfile = await getUserFromBackend(userCredential.user.uid);
+      setUserProfile(userProfile);
+
+      return userCredential;
     } catch (error) {
       setError(error.message);
       throw error;
@@ -71,6 +136,22 @@ export const AuthProvider = ({ children }) => {
     try {
       setError('');
       const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      // Prepare user data for backend
+      const userData = {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      // Save/update user in backend
+      const savedUser = await saveUserToBackend(userData);
+      setUserProfile(savedUser);
+
       return result;
     } catch (error) {
       setError(error.message);
@@ -83,6 +164,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setError('');
       await signOut(auth);
+      setUserProfile(null);
     } catch (error) {
       setError(error.message);
       throw error;
@@ -92,14 +174,43 @@ export const AuthProvider = ({ children }) => {
   // Clear error
   const clearError = () => setError('');
 
-  // Reset password (you can implement this later)
-  const resetPassword = async (email) => {
-    // Implementation for password reset
+  // Update user profile
+  const updateUserProfile = async (uid, updateData) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/users/${uid}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setUserProfile(result.user);
+        return result.user;
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+      throw error;
+    }
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setuser(currentUser);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      
+      if (currentUser) {
+        // Fetch user profile from backend
+        const userProfile = await getUserFromBackend(currentUser.uid);
+        setUserProfile(userProfile);
+      } else {
+        setUserProfile(null);
+      }
+      
       setLoading(false);
     });
 
@@ -108,11 +219,12 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
+    userProfile,
     signUp,
     logIn,
     signInWithGoogle,
     logout,
-    resetPassword,
+    updateUserProfile,
     error,
     clearError,
     loading
