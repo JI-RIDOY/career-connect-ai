@@ -1,10 +1,10 @@
 // src/contexts/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  getAuth, 
-  signInWithPopup, 
-  GoogleAuthProvider, 
-  signOut, 
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
   onAuthStateChanged,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
       });
 
       const result = await response.json();
-      
+
       if (!result.success) {
         throw new Error(result.message || 'Failed to save user to database');
       }
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await fetch(`http://localhost:5000/api/users/${uid}`);
       const result = await response.json();
-      
+
       if (result.success) {
         return result.user;
       }
@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }) => {
       setError('');
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      
+
       // Update user profile with additional data
       if (userData) {
         await updateProfile(user, {
@@ -119,7 +119,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setError('');
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      
+
       // Fetch user profile from backend
       const userProfile = await getUserFromBackend(userCredential.user.uid);
       setUserProfile(userProfile);
@@ -165,6 +165,7 @@ export const AuthProvider = ({ children }) => {
       setError('');
       await signOut(auth);
       setUserProfile(null);
+      setUser(null);
     } catch (error) {
       setError(error.message);
       throw error;
@@ -186,7 +187,7 @@ export const AuthProvider = ({ children }) => {
       });
 
       const result = await response.json();
-      
+
       if (result.success) {
         setUserProfile(result.user);
         return result.user;
@@ -202,7 +203,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
-      
+
       if (currentUser) {
         // Fetch user profile from backend
         const userProfile = await getUserFromBackend(currentUser.uid);
@@ -210,7 +211,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         setUserProfile(null);
       }
-      
+
       setLoading(false);
     });
 

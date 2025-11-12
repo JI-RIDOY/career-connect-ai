@@ -5,8 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaGithub, 
   FaGoogle, 
-  FaFacebook, 
-  FaApple,
   FaEnvelope,
   FaLock,
   FaEye,
@@ -16,13 +14,15 @@ import {
   FaUser,
   FaBriefcase,
   FaCheck,
-  FaExclamationTriangle
+  FaExclamationTriangle,
+  FaSpinner
 } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -32,11 +32,16 @@ const SignUp = () => {
     profession: '',
     userType: '',
     profilePhoto: null,
-    photoPreview: ''
+    photoPreview: '',
+    cloudinaryUrl: ''
   });
 
   const { signUp, signInWithGoogle, error, clearError, user } = useAuth();
   const navigate = useNavigate();
+
+  // Cloudinary configuration
+  const cloudName = 'dohhfubsa';
+  const uploadPreset = 'react_unsigned';
 
   // Redirect if user is already logged in
   useEffect(() => {
@@ -58,8 +63,6 @@ const SignUp = () => {
       handler: handleGoogleSignUp
     },
     { name: 'GitHub', icon: FaGithub, color: 'border border-gray-200 text-gray-700 hover:shadow-lg', handler: () => {} },
-    { name: 'Facebook', icon: FaFacebook, color: 'border border-gray-200 text-gray-700 hover:shadow-lg', handler: () => {} },
-    { name: 'Apple', icon: FaApple, color: 'border border-gray-200 text-gray-700 hover:shadow-lg', handler: () => {} },
   ];
 
   const professions = [
@@ -99,21 +102,69 @@ const SignUp = () => {
     }
   }
 
-  const handleInputChange = (e) => {
+  // Upload image to Cloudinary
+  const uploadToCloudinary = async (file) => {
+    try {
+      setUploading(true);
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', uploadPreset);
+      formData.append('cloud_name', cloudName);
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Image upload failed');
+      }
+
+      const data = await response.json();
+      return data.secure_url; // Return the Cloudinary URL
+
+    } catch (error) {
+      console.error('Error uploading image to Cloudinary:', error);
+      throw new Error('Failed to upload image. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleInputChange = async (e) => {
     const { name, value, files } = e.target;
     
     if (name === 'profilePhoto' && files[0]) {
       const file = files[0];
-      setFormData({
-        ...formData,
+      
+      // Create local preview immediately
+      const previewUrl = URL.createObjectURL(file);
+      setFormData(prev => ({
+        ...prev,
         profilePhoto: file,
-        photoPreview: URL.createObjectURL(file)
-      });
+        photoPreview: previewUrl
+      }));
+
+      // Upload to Cloudinary
+      try {
+        const cloudinaryUrl = await uploadToCloudinary(file);
+        setFormData(prev => ({
+          ...prev,
+          cloudinaryUrl: cloudinaryUrl
+        }));
+      } catch (error) {
+        console.error('Upload failed:', error);
+        // Keep the preview but show error (you can add error state for this)
+      }
     } else {
-      setFormData({
-        ...formData,
+      setFormData(prev => ({
+        ...prev,
         [name]: value
-      });
+      }));
     }
   };
 
@@ -130,9 +181,15 @@ const SignUp = () => {
           return;
         }
 
+        // Wait for upload to complete if there's a photo
+        if (formData.profilePhoto && !formData.cloudinaryUrl && uploading) {
+          setError("Please wait for image upload to complete");
+          return;
+        }
+
         const userData = {
           fullName: formData.fullName,
-          photoURL: formData.photoPreview,
+          photoURL: formData.cloudinaryUrl || formData.photoPreview, // Use Cloudinary URL if available
           location: formData.location,
           profession: formData.profession,
           userType: formData.userType
@@ -356,17 +413,35 @@ const SignUp = () => {
           Profile Photo (Optional)
         </label>
         <div className="flex items-center justify-center">
-          <label className="flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer hover:border-blue-400 transition-colors duration-300 group bg-gray-50/50 hover:bg-white/80">
+          <label className="flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer hover:border-blue-400 transition-colors duration-300 group bg-gray-50/50 hover:bg-white/80 relative overflow-hidden">
             {formData.photoPreview ? (
-              <img
-                src={formData.photoPreview}
-                alt="Profile preview"
-                className="w-full h-full object-cover rounded-2xl"
-              />
+              <>
+                <img
+                  src={formData.photoPreview}
+                  alt="Profile preview"
+                  className="w-full h-full object-cover rounded-2xl"
+                />
+                {uploading && (
+                  <div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center">
+                    <FaSpinner className="text-white text-xl animate-spin" />
+                  </div>
+                )}
+                {formData.cloudinaryUrl && !uploading && (
+                  <div className="absolute bottom-1 right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                    <FaCheck className="text-white text-xs" />
+                  </div>
+                )}
+              </>
             ) : (
               <div className="flex flex-col items-center justify-center text-gray-400 group-hover:text-blue-400">
-                <FaUpload className="text-2xl mb-2" />
-                <span className="text-xs">Upload Photo</span>
+                {uploading ? (
+                  <FaSpinner className="text-2xl mb-2 animate-spin" />
+                ) : (
+                  <FaUpload className="text-2xl mb-2" />
+                )}
+                <span className="text-xs">
+                  {uploading ? 'Uploading...' : 'Upload Photo'}
+                </span>
               </div>
             )}
             <input
@@ -375,9 +450,20 @@ const SignUp = () => {
               onChange={handleInputChange}
               accept="image/*"
               className="hidden"
+              disabled={uploading}
             />
           </label>
         </div>
+        {uploading && (
+          <p className="text-xs text-blue-600 text-center mt-2">
+            Uploading to Cloudinary...
+          </p>
+        )}
+        {formData.cloudinaryUrl && !uploading && (
+          <p className="text-xs text-green-600 text-center mt-2">
+            ✓ Image uploaded successfully to Cloudinary
+          </p>
+        )}
       </div>
     </motion.div>
   );
@@ -527,11 +613,19 @@ const SignUp = () => {
                   boxShadow: "0 20px 40px -10px rgba(59, 130, 246, 0.4)" 
                 }}
                 whileTap={{ scale: 0.98 }}
+                disabled={uploading}
                 className={`${
                   currentStep > 1 ? 'flex-1' : 'w-full'
-                } bg-blue-500 text-white py-4 px-6 rounded-2xl text-base font-semibold hover:shadow-xl transition-all duration-200 shadow-lg shadow-blue-500/25`}
+                } bg-blue-500 text-white py-4 px-6 rounded-2xl text-base font-semibold hover:shadow-xl transition-all duration-200 shadow-lg shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                {currentStep === 3 ? 'Complete Profile' : 'Continue'}
+                {uploading ? (
+                  <div className="flex items-center justify-center">
+                    <FaSpinner className="animate-spin mr-2" />
+                    Uploading...
+                  </div>
+                ) : (
+                  currentStep === 3 ? 'Complete Profile' : 'Continue'
+                )}
               </motion.button>
             </div>
           )}

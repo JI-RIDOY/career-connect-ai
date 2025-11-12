@@ -4,6 +4,8 @@ import Home from "../pages/Home";
 import Login from "../components/auth/Login";
 import SignUp from "../components/auth/Signup";
 import Auth from "../layouts/Auth";
+import Dashboard from "../components/dashboard/Dasboard";
+import Payment from "../pages/Payment";
 
 export const router = createBrowserRouter([
   {
@@ -27,6 +29,14 @@ export const router = createBrowserRouter([
               Component: SignUp
             }
           ]
+        },
+        {
+          path: '/dashboard',
+          Component: Dashboard
+        },
+        {
+          path: '/pricing',
+          Component: Payment,
         }
     ]
   },

@@ -46,8 +46,6 @@ const Login = () => {
       handler: handleGoogleLogin
     },
     { name: 'GitHub', icon: FaGithub, color: 'border border-gray-200 text-gray-700 hover:shadow-lg', handler: () => {} },
-    { name: 'Facebook', icon: FaFacebook, color: 'border border-gray-200 text-gray-700 hover:shadow-lg', handler: () => {} },
-    { name: 'Apple', icon: FaApple, color: 'border border-gray-200 text-gray-700 hover:shadow-lg', handler: () => {} },
   ];
 
   async function handleGoogleLogin() {
