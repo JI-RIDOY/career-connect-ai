@@ -192,7 +192,8 @@ const SignUp = () => {
           photoURL: formData.cloudinaryUrl || formData.photoPreview, // Use Cloudinary URL if available
           location: formData.location,
           profession: formData.profession,
-          userType: formData.userType
+          userType: formData.userType,
+          package: 'Basic'
         };
 
         await signUp(formData.email, formData.password, userData);

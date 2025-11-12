@@ -6,6 +6,7 @@ import SignUp from "../components/auth/Signup";
 import Auth from "../layouts/Auth";
 import Dashboard from "../components/dashboard/Dasboard";
 import Payment from "../pages/Payment";
+import ATSScoreCheck from "../pages/ATSScoreCheck";
 
 export const router = createBrowserRouter([
   {
@@ -37,6 +38,10 @@ export const router = createBrowserRouter([
         {
           path: '/pricing',
           Component: Payment,
+        },
+        {
+          path: '/ats-score',
+          Component: ATSScoreCheck,
         }
     ]
   },

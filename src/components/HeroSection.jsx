@@ -285,7 +285,7 @@ const HeroSection = () => {
 
                         {/* Quick Actions */}
                         <motion.div
-                            className="grid grid-cols-1 sm:grid-cols-3 gap-4"
+                            className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4 hidden lg:flex"
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.8, duration: 0.6 }}

@@ -99,8 +99,10 @@ export const AuthProvider = ({ children }) => {
         location: userData?.location || '',
         profession: userData?.profession || '',
         userType: userData?.userType || '',
+        package: userData?.package || 'Basic',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+
+
       };
 
       // Save user to backend
@@ -144,8 +146,8 @@ export const AuthProvider = ({ children }) => {
         email: user.email,
         displayName: user.displayName,
         photoURL: user.photoURL,
+        package: 'Basic',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
       };
 
       // Save/update user in backend
