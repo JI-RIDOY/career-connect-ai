@@ -161,22 +161,6 @@ const Dashboard = () => {
             icon: FaCalendar,
             color: 'green'
         },
-        {
-            title: 'Profile Views',
-            value: stats.profileViews,
-            change: '+23%',
-            trend: 'up',
-            icon: FaEye,
-            color: 'purple'
-        },
-        {
-            title: 'Recommendations',
-            value: stats.recommendations,
-            change: '+8%',
-            trend: 'up',
-            icon: FaStar,
-            color: 'orange'
-        }
     ];
 
     const getStatusColorClass = (color) => {
@@ -396,7 +380,7 @@ const Dashboard = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-4 sm:py-6 md:py-8">
-            <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div className=" px-3 sm:px-4 md:px-6 lg:px-8 w-11/12 mx-auto">
                 {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
@@ -442,7 +426,7 @@ const Dashboard = () => {
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
-                                    className={`flex flex-col lg:flex-row items-center justify-center gap-1 lg:gap-5 lg:mx-5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm md:text-base whitespace-nowrap flex-1 md:flex-none rounded-lg transition-all duration-200 ${activeTab === tab.id
+                                    className={`flex flex-col lg:flex-row my-1 items-center justify-center gap-1 lg:gap-5 lg:mx-5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm md:text-base whitespace-nowrap flex-1 md:flex-none rounded-lg transition-all duration-200 ${activeTab === tab.id
                                             ? 'border-b-2 border-blue-500 text-blue-600 bg-blue-50'
                                             : 'border-b-2 border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                                         }`}
