@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -18,6 +18,9 @@ import {
   FaChartBar,
   FaSignOutAlt,
   FaCrown,
+  FaStar,
+  FaRocket,
+  FaGem
 } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -25,10 +28,30 @@ const Navbar = () => {
   const { user, userProfile, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [userPackage, setUserPackage] = useState('basic');
   const navigate = useNavigate();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleDrawer = () => setIsDrawerOpen(!isDrawerOpen);
+
+  // Fetch user package data
+  useEffect(() => {
+    const fetchUserPackage = async () => {
+      if (user?.uid) {
+        try {
+          const response = await fetch(`http://localhost:5000/api/users/${user.uid}`);
+          const data = await response.json();
+          if (data.success && data.user.package) {
+            setUserPackage(data.user.package);
+          }
+        } catch (error) {
+          console.error('Error fetching user package:', error);
+        }
+      }
+    };
+
+    fetchUserPackage();
+  }, [user]);
 
   const navItems = [
     { path: '/', name: 'Home', icon: FaHome },
@@ -39,7 +62,7 @@ const Navbar = () => {
 
   const drawerItems = [
     { path: '/dashboard', name: 'Dashboard', icon: FaUser },
-    { path: '/pricing', name: 'Pricing', icon: FaCrown },
+    { path: '/pricing', name: 'Upgrade Plan', icon: FaCrown },
     { path: '/create-resume', name: 'Create Resume', icon: FaFileAlt },
     { path: '/create-cv', name: 'Create CV', icon: FaFilePdf },
     { path: '/mock-interview', name: 'Mock Interview', icon: FaVideo },
@@ -148,6 +171,55 @@ const Navbar = () => {
     return '';
   };
 
+  // Get package details
+  const getPackageDetails = () => {
+    switch (userPackage) {
+      case 'basic':
+        return {
+          name: 'Basic',
+          icon: FaStar,
+          color: 'text-gray-500',
+          bgColor: 'bg-gray-100',
+          borderColor: 'border-gray-200',
+          badgeColor: 'bg-gray-500',
+          description: 'Free Plan'
+        };
+      case 'standard':
+        return {
+          name: 'Standard',
+          icon: FaRocket,
+          color: 'text-blue-500',
+          bgColor: 'bg-blue-100',
+          borderColor: 'border-blue-200',
+          badgeColor: 'bg-blue-500',
+          description: 'Pro Plan'
+        };
+      case 'premium':
+        return {
+          name: 'Premium',
+          icon: FaCrown,
+          color: 'text-purple-500',
+          bgColor: 'bg-purple-100',
+          borderColor: 'border-purple-200',
+          badgeColor: 'bg-purple-500',
+          description: 'Elite Plan'
+        };
+      default:
+        return {
+          name: 'Basic',
+          icon: FaStar,
+          color: 'text-gray-500',
+          bgColor: 'bg-gray-100',
+          borderColor: 'border-gray-200',
+          badgeColor: 'bg-gray-500',
+          description: 'Free Plan'
+        };
+    }
+  };
+
+  const packageDetails = getPackageDetails();
+  const PackageIcon = packageDetails.icon;
+
   return (
     <>
       {/* Main Navbar */}
@@ -249,15 +321,37 @@ const Navbar = () => {
                   whileTap={{ scale: 0.98 }}
                   className="flex items-center space-x-3"
                 >
+                  {/* Package Badge */}
+                  {/* <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className="hidden lg:flex items-center space-x-2 px-3 py-2 rounded-2xl border border-gray-200/50 bg-white/80 backdrop-blur-sm cursor-pointer"
+                    onClick={() => navigate('/pricing')}
+                  >
+                    <div className={`p-2 rounded-xl ${packageDetails.bgColor}`}>
+                      <PackageIcon className={`text-sm ${packageDetails.color}`} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-semibold text-gray-600">Current Plan</span>
+                      <span className={`text-sm font-bold ${packageDetails.color}`}>
+                        {packageDetails.name}
+                      </span>
+                    </div>
+                  </motion.div> */}
+
+                  {/* User Avatar */}
                   <button
                     onClick={toggleDrawer}
-                    className="flex items-center space-x-3 p-2 rounded-2xl hover:bg-gray-50/80 transition-all duration-200 cursor-pointer"
+                    className="flex items-center space-x-3 p-2 rounded-2xl hover:bg-gray-50/80 transition-all duration-200 cursor-pointer group"
                   >
-                    <img
-                      src={getProfilePhoto()}
-                      alt="Profile"
-                      className="w-10 h-10 rounded-full border-2 border-blue-200/50 object-cover"
-                    />
+                    <div className="relative">
+                      <img
+                        src={getProfilePhoto()}
+                        alt="Profile"
+                        className="w-10 h-10 rounded-full border-2 border-blue-200/50 object-cover group-hover:border-blue-300 transition-colors duration-200"
+                      />
+                      {/* Package Indicator Dot */}
+                      <div className={`absolute -bottom-1 -right-1 w-4 h-4 ${packageDetails.badgeColor} border-2 border-white rounded-full`}></div>
+                    </div>
                   </button>
                 </motion.div>
               ) : (
@@ -322,35 +416,36 @@ const Navbar = () => {
                   </div>
                 </motion.div>
 
-                {/* Mobile Auth */}
-                {/* <motion.div
-                  variants={itemVariants}
-                  className="flex space-x-3 pt-4 border-t border-gray-200/50 mt-4"
-                >
-                  {user ? (
-                    <div className="flex items-center space-x-3 w-full">
-                      <img
-                        src={getProfilePhoto()}
-                        alt="Profile"
-                        className="w-12 h-12 rounded-full border-2 border-blue-200/50 object-cover"
-                      />
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-gray-900">{getDisplayName()}</p>
-                        <p className="text-xs text-gray-500">{getEmail()}</p>
+                {/* User Package Info (Mobile) */}
+                {/* {user && (
+                  <motion.div
+                    variants={itemVariants}
+                    className="flex items-center justify-between p-3 bg-gray-50/70 rounded-2xl border border-gray-200/50"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className={`p-2 rounded-xl ${packageDetails.bgColor}`}>
+                        <PackageIcon className={`text-base ${packageDetails.color}`} />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-semibold text-gray-600">Current Plan</span>
+                        <span className={`text-sm font-bold ${packageDetails.color}`}>
+                          {packageDetails.name}
+                        </span>
                       </div>
                     </div>
-                  ) : (
                     <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => navigate('/auth/login')}
-                      className="flex-1 bg-blue-400 text-white px-4 py-3.5 rounded-2xl cursor-pointer text-base font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg shadow-blue-500/25"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        navigate('/pricing');
+                        setIsMenuOpen(false);
+                      }}
+                      className="px-3 py-1.5 bg-blue-500 text-white text-xs font-semibold rounded-xl hover:bg-blue-600 transition-colors duration-200"
                     >
-                      <FaUserPlus className="text-base" />
-                      <span>Get Started</span>
+                      Upgrade
                     </motion.button>
-                  )}
-                </motion.div> */}
+                  </motion.div>
+                )} */}
               </div>
             </motion.div>
           )}
@@ -408,13 +503,17 @@ const Navbar = () => {
             >
               <button
                 onClick={toggleDrawer}
-                className="flex flex-col items-center justify-center w-full h-14 rounded-xl transition-all duration-300 text-gray-600 hover:text-blue-600 hover:bg-white/80"
+                className="flex flex-col items-center justify-center w-full h-14 rounded-xl transition-all duration-300 text-gray-600 hover:text-blue-600 hover:bg-white/80 relative"
               >
-                <img
-                  src={getProfilePhoto()}
-                  alt="Profile"
-                  className="w-6 h-6 rounded-full object-cover"
-                />
+                <div className="relative">
+                  <img
+                    src={getProfilePhoto()}
+                    alt="Profile"
+                    className="w-6 h-6 rounded-full object-cover"
+                  />
+                  {/* Package Indicator Dot */}
+                  <div className={`absolute -bottom-1 -right-1 w-2 h-2 ${packageDetails.badgeColor} border border-white rounded-full`}></div>
+                </div>
                 <span className="text-[10px] font-semibold mt-1">Profile</span>
               </button>
             </motion.div>
@@ -456,17 +555,61 @@ const Navbar = () => {
                 </div>
 
                 {/* User Info */}
-                <div className="flex items-center space-x-4 mb-8 pb-6 border-b border-gray-200/50">
-                  <img
-                    src={getProfilePhoto()}
-                    alt="Profile"
-                    className="w-16 h-16 rounded-full border-2 border-blue-200/50 object-cover"
-                  />
+                <div className="flex items-center space-x-4 mb-6">
+                  <div className="relative">
+                    <img
+                      src={getProfilePhoto()}
+                      alt="Profile"
+                      className="w-16 h-16 rounded-full border-2 border-blue-200/50 object-cover"
+                    />
+                    {/* Package Indicator */}
+                    <div className={`absolute -bottom-1 -right-1 w-5 h-5 ${packageDetails.badgeColor} border-2 border-white rounded-full flex items-center justify-center`}>
+                      <PackageIcon className="text-white text-xs" />
+                    </div>
+                  </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900">{getDisplayName()}</h3>
                     <p className="text-sm text-gray-500">{getEmail()}</p>
                   </div>
                 </div>
+
+                {/* Current Package Card */}
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className={`mb-6 p-4 rounded-2xl border ${packageDetails.borderColor} ${packageDetails.bgColor} cursor-pointer`}
+                  onClick={() => {
+                    navigate('/pricing');
+                    setIsDrawerOpen(false);
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className={`p-2 rounded-xl bg-white/80`}>
+                        <PackageIcon className={`text-lg ${packageDetails.color}`} />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-semibold text-gray-600">Current Plan</span>
+                        <span className={`text-base font-bold ${packageDetails.color}`}>
+                          {packageDetails.name}
+                        </span>
+                      </div>
+                    </div>
+                    {userPackage !== 'premium' && (
+                      <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-xl hover:bg-blue-600 transition-colors duration-200"
+                      >
+                        Upgrade
+                      </motion.div>
+                    )}
+                  </div>
+                  {userPackage === 'basic' && (
+                    <p className="text-xs text-gray-600 mt-2">
+                      Upgrade to unlock all features
+                    </p>
+                  )}
+                </motion.div>
 
                 {/* Navigation Items */}
                 <nav className="space-y-2 mb-8">

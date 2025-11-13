@@ -193,7 +193,8 @@ const SignUp = () => {
           location: formData.location,
           profession: formData.profession,
           userType: formData.userType,
-          package: 'Basic'
+          package: 'Basic',
+          packageExpiry: null
         };
 
         await signUp(formData.email, formData.password, userData);

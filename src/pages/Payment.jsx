@@ -1,11 +1,209 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaCheck, FaTimes, FaCrown, FaStar, FaRocket, FaGem, FaCalendarAlt, FaCreditCard, FaShieldAlt, FaSync } from 'react-icons/fa';
-// import { Link } from 'react-router-dom';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { useAuth } from '../contexts/AuthContext';
+
+const stripePromise = loadStripe('pk_test_51RjuoqCVUlGphES0o97oDdzJ9Rgwi6FDvK45nbkvoQq8vIaBx8barAqg1j6iAGgyG0f17leAhlp3PKAjluWDS8Vw00UZecxcXo');
+
+const PaymentModal = ({ isOpen, onClose, plan, billingCycle, user }) => {
+    const stripe = useStripe();
+    const elements = useElements();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        if (!stripe || !elements) {
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+
+        try {
+            // Create payment intent on backend
+            const response = await fetch('http://localhost:5000/api/payments/create-payment-intent', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    plan: plan.name,
+                    billingCycle: billingCycle,
+                    amount: billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice,
+                    userId: user?.uid,
+                    userEmail: user?.email
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.message || 'Failed to create payment intent');
+            }
+
+            const { clientSecret, paymentIntentId } = data;
+
+            // Confirm payment with Stripe
+            const result = await stripe.confirmCardPayment(clientSecret, {
+                payment_method: {
+                    card: elements.getElement(CardElement),
+                    billing_details: {
+                        email: user?.email,
+                        name: user?.displayName || 'Customer',
+                    },
+                },
+            });
+
+            if (result.error) {
+                setError(result.error.message);
+            } else {
+                // Payment successful - confirm with backend
+                const confirmResponse = await fetch('http://localhost:5000/api/payments/confirm-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        paymentIntentId: paymentIntentId,
+                        userId: user?.uid,
+                        plan: plan.name
+                    }),
+                });
+
+                const confirmData = await confirmResponse.json();
+
+                if (confirmData.success) {
+                    alert('Payment successful! Your package has been upgraded.');
+                    onClose();
+                    // Refresh the page to show updated package
+                    window.location.reload();
+                } else {
+                    throw new Error(confirmData.message || 'Failed to update package');
+                }
+            }
+        } catch (err) {
+            setError(err.message || 'Payment failed. Please try again.');
+            console.error('Payment error:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-white rounded-3xl p-8 max-w-md w-full"
+            >
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    Complete Your Payment
+                </h2>
+
+                <div className="bg-gray-50 rounded-2xl p-4 mb-6">
+                    <div className="flex justify-between items-center mb-2">
+                        <span className="font-semibold">Plan:</span>
+                        <span className="font-bold">{plan.name}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="font-semibold">Billing:</span>
+                        <span className="font-bold">
+                            ${billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice} /
+                            {billingCycle === 'monthly' ? 'month' : 'year'}
+                        </span>
+                    </div>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Card Details
+                        </label>
+                        <div className="border border-gray-300 rounded-2xl p-3">
+                            <CardElement
+                                options={{
+                                    style: {
+                                        base: {
+                                            fontSize: '16px',
+                                            color: '#424770',
+                                            '::placeholder': {
+                                                color: '#aab7c4',
+                                            },
+                                        },
+                                    },
+                                    hidePostalCode: true
+                                }}
+                            />
+                        </div>
+                    </div>
+
+                    {error && (
+                        <div className="text-red-500 text-sm text-center bg-red-50 py-2 rounded-xl">
+                            {error}
+                        </div>
+                    )}
+
+                    <div className="flex space-x-4">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-2xl font-semibold hover:bg-gray-300 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={!stripe || loading}
+                            className="flex-1 py-3 bg-blue-500 text-white rounded-2xl font-semibold hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loading ? 'Processing...' : `Pay $${billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice}`}
+                        </button>
+                    </div>
+                </form>
+
+                <div className="mt-4 text-center">
+                    <div className="flex items-center justify-center space-x-2 text-gray-600">
+                        <FaShieldAlt className="text-green-500" />
+                        <span className="text-sm">Secure payment powered by Stripe</span>
+                    </div>
+                </div>
+            </motion.div>
+        </div>
+    );
+};
 
 const Payment = () => {
+    const { user } = useAuth();
     const [billingCycle, setBillingCycle] = useState('monthly');
     const [selectedPlan, setSelectedPlan] = useState('basic');
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [currentPlan, setCurrentPlan] = useState(null);
+    const [userData, setUserData] = useState(null);
+
+    // Fetch user data from backend
+    useEffect(() => {
+        const fetchUserData = async () => {
+            if (user?.uid) {
+                try {
+                    const response = await fetch(`http://localhost:5000/api/users/${user.uid}`);
+                    const data = await response.json();
+                    if (data.success) {
+                        setUserData(data.user);
+                    }
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
+                }
+            }
+        };
+
+        fetchUserData();
+    }, [user]);
 
     const plans = {
         basic: {
@@ -84,63 +282,50 @@ const Payment = () => {
         }
     };
 
-    const featuresComparison = [
-        {
-            feature: "AI Resume Analysis",
-            basic: "Basic",
-            standard: "Advanced",
-            premium: "Premium"
-        },
-        {
-            feature: "ATS Score Checks",
-            basic: "5 per month",
-            standard: "Unlimited",
-            premium: "Unlimited + AI Tips"
-        },
-        {
-            feature: "Mock Interviews",
-            basic: "5 Questions",
-            standard: "3 Full Interviews",
-            premium: "Unlimited"
-        },
-        {
-            feature: "CV Templates",
-            basic: "Basic Templates",
-            standard: "Professional Templates",
-            premium: "Custom Designs"
-        },
-        {
-            feature: "AI Cover Letters",
-            basic: "❌",
-            standard: "✅",
-            premium: "✅ Advanced"
-        },
-        {
-            feature: "Career Coaching",
-            basic: "❌",
-            standard: "❌",
-            premium: "1-on-1 Sessions"
-        },
-        {
-            feature: "Support",
-            basic: "Email",
-            standard: "Priority Email",
-            premium: "24/7 Priority"
-        }
-    ];
-
     const calculateSavings = (monthlyPrice, yearlyPrice) => {
         const yearlyFromMonthly = monthlyPrice * 12;
         return yearlyFromMonthly - yearlyPrice;
     };
 
-    const handleSubscribe = (plan) => {
-        // Handle subscription logic here
-        console.log(`Subscribing to ${plan} plan - ${billingCycle}`);
-        // Integrate with your payment gateway
+    const handleSubscribe = (planKey) => {
+        const plan = plans[planKey];
+
+        if (planKey === 'basic') {
+            // For free plan, update user package directly
+            updateUserPackage('basic');
+        } else {
+            setSelectedPlan(planKey);
+            setCurrentPlan(plan);
+            setShowPaymentModal(true);
+        }
     };
 
-    // Helper function to get color classes
+    const updateUserPackage = async (packageName) => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/users/${user.uid}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    package: packageName.toLowerCase()
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert(`Package updated to ${packageName}!`);
+                setUserData(data.user);
+            } else {
+                throw new Error(data.message || 'Failed to update package');
+            }
+        } catch (error) {
+            console.error('Error updating package:', error);
+            alert('Failed to update package. Please try again.');
+        }
+    };
+
     const getColorClasses = (color, type) => {
         const colorMap = {
             gray: {
@@ -166,235 +351,201 @@ const Payment = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-12">
-            <div className="w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Header */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center mb-16"
-                >
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                        Choose Your Career Success Plan
-                    </h1>
-                    <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                        Unlock your potential with AI-powered career tools. Start free, upgrade as you grow.
-                    </p>
-                </motion.div>
+        <Elements stripe={stripePromise}>
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-12">
+                <div className="w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Header */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-center mb-16"
+                    >
+                        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                            Choose Your Career Success Plan
+                        </h1>
+                        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                            Unlock your potential with AI-powered career tools. Start free, upgrade as you grow.
+                        </p>
+                        
+                        {/* Current Package Display */}
+                        {userData && (
+                            <div className="mt-6 inline-block bg-white rounded-2xl px-6 py-3 shadow-lg border border-gray-200">
+                                <span className="text-gray-600">Current Package: </span>
+                                <span className="font-bold text-blue-600 capitalize">{userData.package || 'basic'}</span>
+                            </div>
+                        )}
+                    </motion.div>
 
-                {/* Billing Toggle */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="flex justify-center mb-12"
-                >
-                    <div className="bg-white rounded-2xl p-2 shadow-lg border border-gray-200">
-                        <div className="flex items-center">
-                            <button
-                                onClick={() => setBillingCycle('monthly')}
-                                className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${billingCycle === 'monthly'
-                                    ? 'bg-blue-500 text-white shadow-md'
-                                    : 'text-gray-600 hover:text-gray-900'
-                                    }`}
-                            >
-                                Monthly
-                            </button>
-                            <button
-                                onClick={() => setBillingCycle('yearly')}
-                                className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 relative ${billingCycle === 'yearly'
-                                    ? 'bg-blue-500 text-white shadow-md'
-                                    : 'text-gray-600 hover:text-gray-900'
-                                    }`}
-                            >
-                                Yearly
-                                <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                                    Save 17%
-                                </span>
-                            </button>
+                    {/* Billing Toggle */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="flex justify-center mb-12"
+                    >
+                        <div className="bg-white rounded-2xl p-2 shadow-lg border border-gray-200">
+                            <div className="flex items-center">
+                                <button
+                                    onClick={() => setBillingCycle('monthly')}
+                                    className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${billingCycle === 'monthly'
+                                        ? 'bg-blue-500 text-white shadow-md'
+                                        : 'text-gray-600 hover:text-gray-900'
+                                        }`}
+                                >
+                                    Monthly
+                                </button>
+                                <button
+                                    onClick={() => setBillingCycle('yearly')}
+                                    className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 relative ${billingCycle === 'yearly'
+                                        ? 'bg-blue-500 text-white shadow-md'
+                                        : 'text-gray-600 hover:text-gray-900'
+                                        }`}
+                                >
+                                    Yearly
+                                    <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                                        Save 17%
+                                    </span>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </motion.div>
+                    </motion.div>
 
-                {/* Pricing Cards */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="grid grid-cols-1 md:grid-cols-3 gap-8 my-16"
-                >
-                    {Object.entries(plans).map(([key, plan]) => {
-                        const IconComponent = plan.icon;
-                        const price = billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice;
-                        const savings = calculateSavings(plan.monthlyPrice, plan.yearlyPrice);
+                    {/* Pricing Cards */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-8 my-16"
+                    >
+                        {Object.entries(plans).map(([key, plan]) => {
+                            const IconComponent = plan.icon;
+                            const price = billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice;
+                            const savings = calculateSavings(plan.monthlyPrice, plan.yearlyPrice);
+                            const isCurrentPlan = userData?.package === key;
 
-                        return (
-                            <motion.div
-                                key={key}
-                                whileHover={{ scale: 1.02, y: -5 }}
-                                className={`relative bg-white rounded-3xl my-3 shadow-xl border-2 transition-all duration-300 ${selectedPlan === key ? 'border-blue-500' : 'border-transparent'
-                                    } ${plan.popular ? 'transform scale-105' : ''}`}
-                            >
-                                {plan.popular && (
-                                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                                        <div className="bg-blue-500 text-white px-6 py-2 rounded-full shadow-lg">
-                                            <span className="font-semibold text-xs md:text-sm">MOST POPULAR</span>
+                            return (
+                                <motion.div
+                                    key={key}
+                                    whileHover={{ scale: 1.02, y: -5 }}
+                                    className={`relative bg-white rounded-3xl my-3 shadow-xl border-2 transition-all duration-300 ${isCurrentPlan ? 'border-green-500 ring-4 ring-green-100' : selectedPlan === key ? 'border-blue-500' : 'border-transparent'
+                                        } ${plan.popular ? 'transform scale-105' : ''}`}
+                                >
+                                    {plan.popular && (
+                                        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                                            <div className="bg-blue-500 text-white px-6 py-2 rounded-full shadow-lg">
+                                                <span className="font-semibold text-xs md:text-sm">MOST POPULAR</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
 
-                                <div className="p-8">
-                                    {/* Plan Header */}
-                                    <div className="text-center mb-8">
-                                        <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl ${getColorClasses(plan.color, 'bg')} ${getColorClasses(plan.color, 'text')} mb-4`}>
-                                            <IconComponent className="text-2xl" />
+                                    {isCurrentPlan && (
+                                        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                                            <div className="bg-green-500 text-white px-6 py-2 rounded-full shadow-lg">
+                                                <span className="font-semibold text-xs md:text-sm">CURRENT PLAN</span>
+                                            </div>
                                         </div>
-                                        <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                                        <p className="text-gray-600">{plan.description}</p>
-                                    </div>
+                                    )}
 
-                                    {/* Price */}
-                                    <div className="text-center mb-6">
-                                        <div className="flex items-baseline justify-center">
-                                            <span className="text-4xl font-bold text-gray-900">${price}</span>
-                                            {price > 0 && (
-                                                <span className="text-gray-600 ml-2">
-                                                    /{billingCycle === 'monthly' ? 'month' : 'year'}
-                                                </span>
+                                    <div className="p-8">
+                                        {/* Plan Header */}
+                                        <div className="text-center mb-8">
+                                            <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl ${getColorClasses(plan.color, 'bg')} ${getColorClasses(plan.color, 'text')} mb-4`}>
+                                                <IconComponent className="text-2xl" />
+                                            </div>
+                                            <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                                            <p className="text-gray-600">{plan.description}</p>
+                                        </div>
+
+                                        {/* Price */}
+                                        <div className="text-center mb-6">
+                                            <div className="flex items-baseline justify-center">
+                                                <span className="text-4xl font-bold text-gray-900">${price}</span>
+                                                {price > 0 && (
+                                                    <span className="text-gray-600 ml-2">
+                                                        /{billingCycle === 'monthly' ? 'month' : 'year'}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {billingCycle === 'yearly' && price > 0 && (
+                                                <p className="text-green-600 font-semibold mt-2">
+                                                    Save ${savings.toFixed(2)} yearly
+                                                </p>
                                             )}
                                         </div>
-                                        {billingCycle === 'yearly' && price > 0 && (
-                                            <p className="text-green-600 font-semibold mt-2">
-                                                Save ${savings.toFixed(2)} yearly
-                                            </p>
-                                        )}
-                                    </div>
 
-                                    {/* Features */}
-                                    <div className="space-y-4 mb-8">
-                                        <h4 className="font-semibold text-gray-900 mb-4">What's included:</h4>
-                                        {plan.features.included.map((feature, index) => (
-                                            <div key={index} className="flex items-center">
-                                                <FaCheck className="text-green-500 mr-3 flex-shrink-0" />
-                                                <span className="text-gray-700">{feature}</span>
-                                            </div>
-                                        ))}
-                                        {plan.features.excluded.map((feature, index) => (
-                                            <div key={index} className="flex items-center opacity-50">
-                                                <FaTimes className="text-gray-400 mr-3 flex-shrink-0" />
-                                                <span className="text-gray-600">{feature}</span>
-                                            </div>
-                                        ))}
-                                    </div>
+                                        {/* Features */}
+                                        <div className="space-y-4 mb-8">
+                                            <h4 className="font-semibold text-gray-900 mb-4">What's included:</h4>
+                                            {plan.features.included.map((feature, index) => (
+                                                <div key={index} className="flex items-center">
+                                                    <FaCheck className="text-green-500 mr-3 flex-shrink-0" />
+                                                    <span className="text-gray-700">{feature}</span>
+                                                </div>
+                                            ))}
+                                            {plan.features.excluded.map((feature, index) => (
+                                                <div key={index} className="flex items-center opacity-50">
+                                                    <FaTimes className="text-gray-400 mr-3 flex-shrink-0" />
+                                                    <span className="text-gray-600">{feature}</span>
+                                                </div>
+                                            ))}
+                                        </div>
 
-                                    {/* CTA Button */}
-                                    <button
-                                        onClick={() => {
-                                            setSelectedPlan(key);
-                                            if (key === 'basic') {
-                                                // Redirect to signup for free plan
-                                                window.location.href = '/auth/sign-up';
-                                            } else {
-                                                handleSubscribe(key);
+                                        {/* CTA Button */}
+                                        <button
+                                            onClick={() => handleSubscribe(key)}
+                                            disabled={isCurrentPlan}
+                                            className={`w-full py-4 rounded-2xl font-semibold transition-all duration-200 ${isCurrentPlan
+                                                ? 'bg-green-500 text-white cursor-default'
+                                                : key === 'basic'
+                                                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                    : `${getColorClasses(plan.color, 'button')} text-white shadow-md hover:shadow-lg`
+                                                }`}
+                                        >
+                                            {isCurrentPlan
+                                                ? 'Current Plan'
+                                                : key === 'basic'
+                                                    ? 'Get Started Free'
+                                                    : `Choose ${plan.name}`
                                             }
-                                        }}
-                                        className={`w-full py-4 rounded-2xl font-semibold transition-all duration-200 ${key === 'basic'
-                                            ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                            : `${getColorClasses(plan.color, 'button')} text-white shadow-md hover:shadow-lg`
-                                            }`}
-                                    >
-                                        {key === 'basic' ? 'Get Started Free' : `Choose ${plan.name}`}
-                                    </button>
-                                </div>
-                            </motion.div>
-                        );
-                    })}
-                </motion.div>
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                    </motion.div>
 
-                {/* Feature Comparison Table */}
-                {/* <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden mb-16"
-                >
-                    <div className="px-8 py-6 border-b border-gray-200">
-                        <h2 className="text-2xl font-bold text-gray-900">Compare Features</h2>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="bg-gray-50">
-                                    <th className="px-6 py-4 text-left font-semibold text-gray-900">Features</th>
-                                    <th className="px-6 py-4 text-center font-semibold text-gray-900">Basic</th>
-                                    <th className="px-6 py-4 text-center font-semibold text-gray-900">Standard</th>
-                                    <th className="px-6 py-4 text-center font-semibold text-gray-900">Premium</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {featuresComparison.map((row, index) => (
-                                    <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                                        <td className="px-6 py-4 font-medium text-gray-900">{row.feature}</td>
-                                        <td className="px-6 py-4 text-center text-gray-700">{row.basic}</td>
-                                        <td className="px-6 py-4 text-center text-gray-700">{row.standard}</td>
-                                        <td className="px-6 py-4 text-center text-gray-700">{row.premium}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </motion.div> */}
+                    {/* Security Badge */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                        className="text-center mt-12"
+                    >
+                        <div className="flex items-center justify-center space-x-4 text-gray-600 flex-wrap gap-4">
+                            <div className="flex items-center space-x-2">
+                                <FaShieldAlt className="text-2xl" />
+                                <span className="font-semibold">Secure Payment · 256-bit SSL Encryption</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <FaSync className="text-2xl" />
+                                <span className="font-semibold">Cancel Anytime · No Questions Asked</span>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
 
-                {/* FAQ Section */}
-                {/* <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                    className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8"
-                >
-                    <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
-                        Frequently Asked Questions
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Can I change plans later?</h3>
-                            <p className="text-gray-600">Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.</p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Is the Basic plan really free?</h3>
-                            <p className="text-gray-600">Yes! The Basic plan is completely free forever with no credit card required.</p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">What payment methods do you accept?</h3>
-                            <p className="text-gray-600">We accept all major credit cards, PayPal, and bank transfers for annual plans.</p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Can I cancel anytime?</h3>
-                            <p className="text-gray-600">Absolutely! You can cancel your subscription at any time with no cancellation fees.</p>
-                        </div>
-                    </div>
-                </motion.div> */}
-
-                {/* Security Badge */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                    className="text-center mt-12"
-                >
-                    <div className="flex items-center justify-center space-x-4 text-gray-600 flex-wrap gap-4">
-                        <div className="flex items-center space-x-2">
-                            <FaShieldAlt className="text-2xl" />
-                            <span className="font-semibold">Secure Payment · 256-bit SSL Encryption</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <FaSync className="text-2xl" />
-                            <span className="font-semibold">Cancel Anytime · No Questions Asked</span>
-                        </div>
-                    </div>
-                </motion.div>
+                {/* Payment Modal */}
+                {showPaymentModal && currentPlan && (
+                    <PaymentModal
+                        isOpen={showPaymentModal}
+                        onClose={() => setShowPaymentModal(false)}
+                        plan={currentPlan}
+                        billingCycle={billingCycle}
+                        user={user}
+                    />
+                )}
             </div>
-        </div>
+        </Elements>
     );
 };
 

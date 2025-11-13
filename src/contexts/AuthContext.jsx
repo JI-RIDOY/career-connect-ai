@@ -147,6 +147,7 @@ export const AuthProvider = ({ children }) => {
         displayName: user.displayName,
         photoURL: user.photoURL,
         package: 'Basic',
+        packageExpiry: null,
         createdAt: new Date().toISOString(),
       };
 
