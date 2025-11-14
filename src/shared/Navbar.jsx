@@ -417,35 +417,6 @@ const Navbar = () => {
                 </motion.div>
 
                 {/* User Package Info (Mobile) */}
-                {/* {user && (
-                  <motion.div
-                    variants={itemVariants}
-                    className="flex items-center justify-between p-3 bg-gray-50/70 rounded-2xl border border-gray-200/50"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className={`p-2 rounded-xl ${packageDetails.bgColor}`}>
-                        <PackageIcon className={`text-base ${packageDetails.color}`} />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-xs font-semibold text-gray-600">Current Plan</span>
-                        <span className={`text-sm font-bold ${packageDetails.color}`}>
-                          {packageDetails.name}
-                        </span>
-                      </div>
-                    </div>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => {
-                        navigate('/pricing');
-                        setIsMenuOpen(false);
-                      }}
-                      className="px-3 py-1.5 bg-blue-500 text-white text-xs font-semibold rounded-xl hover:bg-blue-600 transition-colors duration-200"
-                    >
-                      Upgrade
-                    </motion.button>
-                  </motion.div>
-                )} */}
               </div>
             </motion.div>
           )}
@@ -568,8 +539,8 @@ const Navbar = () => {
                     </div>
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900">{getDisplayName()}</h3>
-                    <p className="text-sm text-gray-500">{getEmail()}</p>
+                    <h3 className="text-md font-semibold text-gray-900">{getDisplayName()}</h3>
+                    <p className="text-xs text-gray-500">{getEmail()}</p>
                   </div>
                 </div>
 

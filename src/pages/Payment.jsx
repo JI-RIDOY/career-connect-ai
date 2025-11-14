@@ -7,7 +7,39 @@ import { useAuth } from '../contexts/AuthContext';
 
 const stripePromise = loadStripe('pk_test_51RjuoqCVUlGphES0o97oDdzJ9Rgwi6FDvK45nbkvoQq8vIaBx8barAqg1j6iAGgyG0f17leAhlp3PKAjluWDS8Vw00UZecxcXo');
 
-const PaymentModal = ({ isOpen, onClose, plan, billingCycle, user }) => {
+// Toast Notification Component
+const Toast = ({ message, type = 'success', onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+  const borderColor = type === 'success' ? 'border-green-400' : 'border-red-400';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -50, scale: 0.8 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -50, scale: 0.8 }}
+      className={`fixed top-4 right-4 ${bgColor} border ${borderColor} text-white px-6 py-4 rounded-2xl shadow-lg z-50 max-w-sm`}
+    >
+      <div className="flex items-center space-x-3">
+        {type === 'success' ? (
+          <FaCheck className="text-xl flex-shrink-0" />
+        ) : (
+          <FaTimes className="text-xl flex-shrink-0" />
+        )}
+        <span className="font-semibold">{message}</span>
+      </div>
+    </motion.div>
+  );
+};
+
+const PaymentModal = ({ isOpen, onClose, plan, billingCycle, user, onPaymentSuccess }) => {
     const stripe = useStripe();
     const elements = useElements();
     const [loading, setLoading] = useState(false);
@@ -77,10 +109,8 @@ const PaymentModal = ({ isOpen, onClose, plan, billingCycle, user }) => {
                 const confirmData = await confirmResponse.json();
 
                 if (confirmData.success) {
-                    alert('Payment successful! Your package has been upgraded.');
+                    onPaymentSuccess(`🎉 Payment successful! Your ${plan.name} package has been activated.`);
                     onClose();
-                    // Refresh the page to show updated package
-                    window.location.reload();
                 } else {
                     throw new Error(confirmData.message || 'Failed to update package');
                 }
@@ -96,11 +126,11 @@ const PaymentModal = ({ isOpen, onClose, plan, billingCycle, user }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-transparent backdrop-blur-lg bg-opacity-50 flex items-center justify-center z-50 p-4">
             <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-white rounded-3xl p-8 max-w-md w-full"
+                className="bg-white border-3 border-blue-300 rounded-3xl p-8 max-w-md w-full"
             >
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">
                     Complete Your Payment
@@ -185,6 +215,15 @@ const Payment = () => {
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [currentPlan, setCurrentPlan] = useState(null);
     const [userData, setUserData] = useState(null);
+    const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+    const showToast = (message, type = 'success') => {
+        setToast({ show: true, message, type });
+    };
+
+    const hideToast = () => {
+        setToast({ ...toast, show: false });
+    };
 
     // Fetch user data from backend
     useEffect(() => {
@@ -315,15 +354,34 @@ const Payment = () => {
             const data = await response.json();
 
             if (data.success) {
-                alert(`Package updated to ${packageName}!`);
+                showToast(`✨ Package updated to ${packageName}! Enjoy your new features.`);
                 setUserData(data.user);
             } else {
                 throw new Error(data.message || 'Failed to update package');
             }
         } catch (error) {
             console.error('Error updating package:', error);
-            alert('Failed to update package. Please try again.');
+            showToast('Failed to update package. Please try again.', 'error');
         }
+    };
+
+    const handlePaymentSuccess = (message) => {
+        showToast(message);
+        // Refresh user data to show updated package
+        const fetchUserData = async () => {
+            if (user?.uid) {
+                try {
+                    const response = await fetch(`http://localhost:5000/api/users/${user.uid}`);
+                    const data = await response.json();
+                    if (data.success) {
+                        setUserData(data.user);
+                    }
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
+                }
+            }
+        };
+        fetchUserData();
     };
 
     const getColorClasses = (color, type) => {
@@ -354,6 +412,15 @@ const Payment = () => {
         <Elements stripe={stripePromise}>
             <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-12">
                 <div className="w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Toast Notification */}
+                    {toast.show && (
+                        <Toast 
+                            message={toast.message} 
+                            type={toast.type} 
+                            onClose={hideToast} 
+                        />
+                    )}
+
                     {/* Header */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -542,6 +609,7 @@ const Payment = () => {
                         plan={currentPlan}
                         billingCycle={billingCycle}
                         user={user}
+                        onPaymentSuccess={handlePaymentSuccess}
                     />
                 )}
             </div>
