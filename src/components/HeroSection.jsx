@@ -249,7 +249,7 @@ const HeroSection = () => {
 
     return (
         <section className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 pt-10 pb-16">
-            <div className="w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="w-11/12 mx-auto px-4 lg:px-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
 
                     {/* Left Content */}

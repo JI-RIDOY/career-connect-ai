@@ -8,6 +8,7 @@ import Dashboard from "../components/dashboard/Dasboard";
 import Payment from "../pages/Payment";
 import ATSScoreCheck from "../pages/ATSScoreCheck";
 import Settings from "../pages/Settings";
+import MockInterview from "../pages/MockInterview";
 
 export const router = createBrowserRouter([
   {
@@ -47,6 +48,10 @@ export const router = createBrowserRouter([
         {
           path: '/settings',
           Component: Settings,
+        },
+        {
+          path: '/mock-interview',
+          Component: MockInterview
         }
     ]
   },
