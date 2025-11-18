@@ -1,10 +1,13 @@
 import React from 'react';
 import HeroSection from '../components/HeroSection';
+import FeedSection from '../components/feed/FeedSection';
+import { useAuth } from '../contexts/AuthContext';
 
 const Home = () => {
+    const { user } = useAuth()
     return (
         <div>
-            <HeroSection />
+            {user ? <FeedSection /> : <HeroSection/>}
         </div>
     );
 };
