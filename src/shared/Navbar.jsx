@@ -22,7 +22,8 @@ import {
   FaRocket,
   FaGem,
   FaPlus,
-  FaBriefcase
+  FaBriefcase,
+  FaBusinessTime
 } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -31,28 +32,34 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [userPackage, setUserPackage] = useState('basic');
+  const [userType, setUserType] = useState('jobseeker'); // Default to jobseeker
   const navigate = useNavigate();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleDrawer = () => setIsDrawerOpen(!isDrawerOpen);
 
-  // Fetch user package data
+  // Fetch user package data and user type
   useEffect(() => {
-    const fetchUserPackage = async () => {
+    const fetchUserData = async () => {
       if (user?.uid) {
         try {
           const response = await fetch(`http://localhost:5000/api/users/${user.uid}`);
           const data = await response.json();
-          if (data.success && data.user.package) {
-            setUserPackage(data.user.package);
+          if (data.success) {
+            if (data.user.package) {
+              setUserPackage(data.user.package);
+            }
+            if (data.user.userType) {
+              setUserType(data.user.userType);
+            }
           }
         } catch (error) {
-          console.error('Error fetching user package:', error);
+          console.error('Error fetching user data:', error);
         }
       }
     };
 
-    fetchUserPackage();
+    fetchUserData();
   }, [user]);
 
   // Navigation items for authenticated users
@@ -70,7 +77,8 @@ const Navbar = () => {
     { path: '/features', name: 'Features', icon: FaGem },
   ];
 
-  const drawerItems = [
+  // Base drawer items for all users
+  const baseDrawerItems = [
     { path: '/dashboard', name: 'Dashboard', icon: FaUser },
     { path: '/pricing', name: 'Upgrade Plan', icon: FaCrown },
     { path: '/create-resume', name: 'Create Resume', icon: FaFileAlt },
@@ -79,6 +87,28 @@ const Navbar = () => {
     { path: '/ats-score', name: 'ATS Score Check', icon: FaChartBar },
     { path: '/settings', name: 'Settings', icon: FaCog },
   ];
+
+  // Recruiter-specific drawer item
+  const recruiterDrawerItem = { 
+    path: '/post-job', 
+    name: 'Post a Job', 
+    icon: FaBusinessTime 
+  };
+
+  // Combine drawer items based on user type
+  const getDrawerItems = () => {
+    if (userType === 'recruiter') {
+      // Insert "Post a Job" after Dashboard for recruiters
+      return [
+        baseDrawerItems[0], // Dashboard
+        recruiterDrawerItem, // Post a Job
+        ...baseDrawerItems.slice(1) // Rest of the items
+      ];
+    }
+    return baseDrawerItems;
+  };
+
+  const drawerItems = getDrawerItems();
 
   const menuVariants = {
     closed: {
@@ -624,6 +654,10 @@ const Navbar = () => {
                     <div className="flex-1">
                       <h3 className="text-md font-semibold text-gray-900">{getDisplayName()}</h3>
                       <p className="text-xs text-gray-500">{getEmail()}</p>
+                      {/* User Type Badge */}
+                      <div className={`inline-block mt-1 px-2 py-1 rounded-full text-xs font-medium ${userType === 'recruiter' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>
+                        {userType === 'recruiter' ? 'Recruiter' : 'Job Seeker'}
+                      </div>
                     </div>
                   </div>
 
@@ -681,6 +715,12 @@ const Navbar = () => {
                       >
                         <item.icon className="text-base" />
                         <span>{item.name}</span>
+                        {/* Special badge for recruiter items */}
+                        {item.name === 'Post a Job' && (
+                          <span className="ml-auto px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
+                            Recruiter
+                          </span>
+                        )}
                       </NavLink>
                     ))}
                   </nav>

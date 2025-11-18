@@ -50,8 +50,8 @@ const Footer = () => {
                                 className="flex items-center"
                             >
                                 <NavLink to="/" className="flex items-center space-x-3">
-                                    <div>
-                                        <img src="/logo.jpg" alt="LOGO" className='h-10 w-10' />
+                                    <div className=''>
+                                        <img src="/logo.jpg" alt="LOGO" className='h-10 w-10 rounded-full' />
                                     </div>
                                     <div className='flex flex-col hidden lg:flex'>
                                         <span className=' text-2xl font-bold text-blue-500'>Career</span>

@@ -50,7 +50,7 @@ export const router = createBrowserRouter([
         Component: Login
       },
       {
-        path: 'signup',
+        path: 'sign-up',
         Component: SignUp
       }
     ]
