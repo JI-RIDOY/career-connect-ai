@@ -15,7 +15,7 @@ const PostCard = ({ post, onLike, onComment, onShare, index }) => {
                 <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
                         <img
-                            src={post.user.avatar}
+                            src={post.user.userAvatar}
                             alt={post.user.name}
                             className="w-12 h-12 rounded-full"
                         />
@@ -50,16 +50,15 @@ const PostCard = ({ post, onLike, onComment, onShare, index }) => {
                 <div className="flex justify-around">
                     <button
                         onClick={() => onLike(post.id)}
-                        className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-colors ${
-                            post.isLiked
+                        className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-colors ${post.isLiked
                                 ? 'text-red-500 hover:bg-red-50'
                                 : 'text-gray-500 hover:bg-gray-50'
-                        }`}
+                            }`}
                     >
                         <FaHeart className={post.isLiked ? 'fill-current' : ''} />
                         <span className="font-medium">Like</span>
                     </button>
-                    
+
                     <button
                         onClick={() => onComment(post.id)}
                         className="flex items-center space-x-2 px-4 py-2 rounded-xl text-gray-500 hover:bg-gray-50 transition-colors"
@@ -67,7 +66,7 @@ const PostCard = ({ post, onLike, onComment, onShare, index }) => {
                         <FaComment />
                         <span className="font-medium">Comment</span>
                     </button>
-                    
+
                     <button
                         onClick={() => onShare(post.id)}
                         className="flex items-center space-x-2 px-4 py-2 rounded-xl text-gray-500 hover:bg-gray-50 transition-colors"
