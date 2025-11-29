@@ -426,7 +426,7 @@ const FeedContent = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
-            <div className="max-w-2xl mx-auto px-4 py-8">
+            <div className="max-w-2xl mx-auto px-4 ">
 
                 {error && (
                     <div className="mb-6 bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center justify-between">

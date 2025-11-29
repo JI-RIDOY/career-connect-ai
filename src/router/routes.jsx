@@ -9,6 +9,7 @@ import Payment from "../pages/Payment";
 import ATSScoreCheck from "../pages/ATSScoreCheck";
 import Settings from "../pages/Settings";
 import MockInterview from "../pages/MockInterview";
+import LearningPathGenerator from "../pages/LearningPathGenerator";
 
 export const router = createBrowserRouter([
   {
@@ -38,6 +39,10 @@ export const router = createBrowserRouter([
         {
           path: '/mock-interview',
           Component: MockInterview
+        },
+        {
+          path: '/learning-path',
+          Component: LearningPathGenerator
         }
     ]
   },

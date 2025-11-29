@@ -23,7 +23,8 @@ import {
   FaGem,
   FaPlus,
   FaBriefcase,
-  FaBusinessTime
+  FaBusinessTime,
+  FaStreetView
 } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -81,6 +82,7 @@ const Navbar = () => {
   const baseDrawerItems = [
     { path: '/dashboard', name: 'Dashboard', icon: FaUser },
     { path: '/pricing', name: 'Upgrade Plan', icon: FaCrown },
+    { path: '/learning-path', name: 'Learning Path', icon: FaStreetView },
     { path: '/create-resume', name: 'Create Resume', icon: FaFileAlt },
     { path: '/create-cv', name: 'Create CV', icon: FaFilePdf },
     { path: '/mock-interview', name: 'Mock Interview', icon: FaVideo },
@@ -89,10 +91,10 @@ const Navbar = () => {
   ];
 
   // Recruiter-specific drawer item
-  const recruiterDrawerItem = { 
-    path: '/post-job', 
-    name: 'Post a Job', 
-    icon: FaBusinessTime 
+  const recruiterDrawerItem = {
+    path: '/post-job',
+    name: 'Post a Job',
+    icon: FaBusinessTime
   };
 
   // Combine drawer items based on user type
