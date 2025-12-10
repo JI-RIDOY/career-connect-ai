@@ -50,8 +50,6 @@ const Settings = () => {
       yearsOfExperience: '',
       skills: [],
       newSkill: '',
-      resume: '',
-      coverLetter: ''
     },
     // Education
     education: {
@@ -60,7 +58,6 @@ const Settings = () => {
       fieldOfStudy: '',
       graduationYear: '',
       gpa: '',
-      certifications: []
     },
     // Preferences
     preferences: {
@@ -100,8 +97,6 @@ const Settings = () => {
           yearsOfExperience: userProfile.yearsOfExperience || '',
           skills: userProfile.skills || [],
           newSkill: '',
-          resume: userProfile.resume || '',
-          coverLetter: userProfile.coverLetter || ''
         },
         education: {
           highestDegree: userProfile.highestDegree || '',
@@ -109,7 +104,6 @@ const Settings = () => {
           fieldOfStudy: userProfile.fieldOfStudy || '',
           graduationYear: userProfile.graduationYear || '',
           gpa: userProfile.gpa || '',
-          certifications: userProfile.certifications || []
         },
         preferences: {
           jobTypes: userProfile.jobTypes || [],
@@ -241,38 +235,6 @@ const Settings = () => {
     }));
   };
 
-  const addCertification = () => {
-    setFormData(prev => ({
-      ...prev,
-      education: {
-        ...prev.education,
-        certifications: [...prev.education.certifications, { name: '', issuer: '', date: '' }]
-      }
-    }));
-  };
-
-  const updateCertification = (index, field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      education: {
-        ...prev.education,
-        certifications: prev.education.certifications.map((cert, i) => 
-          i === index ? { ...cert, [field]: value } : cert
-        )
-      }
-    }));
-  };
-
-  const removeCertification = (index) => {
-    setFormData(prev => ({
-      ...prev,
-      education: {
-        ...prev.education,
-        certifications: prev.education.certifications.filter((_, i) => i !== index)
-      }
-    }));
-  };
-
   const toggleJobType = (type) => {
     setFormData(prev => ({
       ...prev,
@@ -338,8 +300,6 @@ const Settings = () => {
         industry: formData.professional.industry,
         yearsOfExperience: formData.professional.yearsOfExperience,
         skills: formData.professional.skills,
-        resume: formData.professional.resume,
-        coverLetter: formData.professional.coverLetter,
 
         // Education
         highestDegree: formData.education.highestDegree,
@@ -347,7 +307,6 @@ const Settings = () => {
         fieldOfStudy: formData.education.fieldOfStudy,
         graduationYear: formData.education.graduationYear,
         gpa: formData.education.gpa,
-        certifications: formData.education.certifications,
 
         // Preferences
         jobTypes: formData.preferences.jobTypes,
@@ -408,34 +367,6 @@ const Settings = () => {
                     type="file"
                     accept="image/*"
                     onChange={(e) => handleFileUpload(e, 'profilePhoto', 'personal')}
-                    className="hidden"
-                  />
-                </label>
-              </div>
-            </div>
-            
-            <div className="text-center">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Cover Photo
-              </label>
-              <div className="relative">
-                <div className="w-full h-32 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center">
-                  {formData.personal.coverPhoto ? (
-                    <img
-                      src={formData.personal.coverPhoto}
-                      alt="Cover"
-                      className="w-full h-32 rounded-2xl object-cover"
-                    />
-                  ) : (
-                    <span className="text-gray-400">Upload Cover Photo</span>
-                  )}
-                </div>
-                <label className="absolute bottom-2 right-2 bg-blue-500 text-white p-2 rounded-full cursor-pointer hover:bg-blue-600 transition-colors">
-                  <FaUpload className="text-sm" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleFileUpload(e, 'coverPhoto', 'personal')}
                     className="hidden"
                   />
                 </label>
@@ -622,61 +553,6 @@ const Settings = () => {
           </button>
         </div>
       </div>
-
-      {/* Documents */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Resume
-          </label>
-          <div className="flex items-center gap-4">
-            {formData.professional.resume ? (
-              <span className="text-green-600 flex items-center">
-                <FaCheck className="mr-2" />
-                Resume uploaded
-              </span>
-            ) : (
-              <span className="text-gray-500">No resume uploaded</span>
-            )}
-            <label className="px-4 py-2 bg-blue-500 text-white rounded-2xl hover:bg-blue-600 transition-colors cursor-pointer">
-              <FaUpload className="inline mr-2" />
-              Upload Resume
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={(e) => handleFileUpload(e, 'resume', 'professional')}
-                className="hidden"
-              />
-            </label>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Cover Letter Template
-          </label>
-          <div className="flex items-center gap-4">
-            {formData.professional.coverLetter ? (
-              <span className="text-green-600 flex items-center">
-                <FaCheck className="mr-2" />
-                Cover letter uploaded
-              </span>
-            ) : (
-              <span className="text-gray-500">No cover letter</span>
-            )}
-            <label className="px-4 py-2 bg-blue-500 text-white rounded-2xl hover:bg-blue-600 transition-colors cursor-pointer">
-              <FaUpload className="inline mr-2" />
-              Upload Cover Letter
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={(e) => handleFileUpload(e, 'coverLetter', 'professional')}
-                className="hidden"
-              />
-            </label>
-          </div>
-        </div>
-      </div>
     </motion.div>
   );
 
@@ -755,74 +631,6 @@ const Settings = () => {
             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="e.g., 3.8/4.0"
           />
-        </div>
-      </div>
-
-      {/* Certifications */}
-      <div>
-        <div className="flex justify-between items-center mb-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Certifications
-          </label>
-          <button
-            type="button"
-            onClick={addCertification}
-            className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-2xl hover:bg-blue-600 transition-colors"
-          >
-            <FaPlus className="mr-2" />
-            Add Certification
-          </button>
-        </div>
-        
-        <div className="space-y-4">
-          {formData.education.certifications.map((cert, index) => (
-            <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Certification Name
-                </label>
-                <input
-                  type="text"
-                  value={cert.name}
-                  onChange={(e) => updateCertification(index, 'name', e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="e.g., AWS Certified Solutions Architect"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Issuing Organization
-                </label>
-                <input
-                  type="text"
-                  value={cert.issuer}
-                  onChange={(e) => updateCertification(index, 'issuer', e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="e.g., Amazon Web Services"
-                />
-              </div>
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date Obtained
-                  </label>
-                  <input
-                    type="month"
-                    value={cert.date}
-                    onChange={(e) => updateCertification(index, 'date', e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeCertification(index)}
-                  className="px-4 py-3 bg-red-500 text-white rounded-2xl hover:bg-red-600 transition-colors"
-                >
-                  <FaTrash />
-                </button>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </motion.div>

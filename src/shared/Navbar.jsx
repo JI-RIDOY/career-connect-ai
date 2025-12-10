@@ -24,7 +24,9 @@ import {
   FaPlus,
   FaBriefcase,
   FaBusinessTime,
-  FaStreetView
+  FaStreetView,
+  FaClipboardList,
+  FaBriefcaseMedical
 } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -78,10 +80,10 @@ const Navbar = () => {
     { path: '/features', name: 'Features', icon: FaGem },
   ];
 
-  // Base drawer items for all users
-  const baseDrawerItems = [
+  // Job Seeker specific drawer items
+  const jobSeekerDrawerItems = [
     { path: '/dashboard', name: 'Dashboard', icon: FaUser },
-    { path: '/pricing', name: 'Upgrade Plan', icon: FaCrown },
+    { path: '/my-applications', name: 'My Applications', icon: FaClipboardList },
     { path: '/learning-path', name: 'Learning Path', icon: FaStreetView },
     { path: '/create-resume', name: 'Create Resume', icon: FaFileAlt },
     { path: '/create-cv', name: 'Create CV', icon: FaFilePdf },
@@ -90,24 +92,31 @@ const Navbar = () => {
     { path: '/settings', name: 'Settings', icon: FaCog },
   ];
 
-  // Recruiter-specific drawer item
-  const recruiterDrawerItem = {
-    path: '/post-job',
-    name: 'Post a Job',
-    icon: FaBusinessTime
-  };
+  // Recruiter-specific drawer items
+  const recruiterDrawerItems = [
+    { path: '/dashboard', name: 'Dashboard', icon: FaUser },
+    { path: '/my-jobs', name: 'My Jobs', icon: FaBriefcaseMedical },
+    { path: '/post-job', name: 'Post a Job', icon: FaBusinessTime },
+    { path: '/learning-path', name: 'Learning Path', icon: FaStreetView },
+    { path: '/create-resume', name: 'Create Resume', icon: FaFileAlt },
+    { path: '/create-cv', name: 'Create CV', icon: FaFilePdf },
+    { path: '/mock-interview', name: 'Mock Interview', icon: FaVideo },
+    { path: '/ats-score', name: 'ATS Score Check', icon: FaChartBar },
+    { path: '/settings', name: 'Settings', icon: FaCog },
+  ];
 
   // Combine drawer items based on user type
   const getDrawerItems = () => {
     if (userType === 'recruiter') {
-      // Insert "Post a Job" after Dashboard for recruiters
       return [
-        baseDrawerItems[0], // Dashboard
-        recruiterDrawerItem, // Post a Job
-        ...baseDrawerItems.slice(1) // Rest of the items
+        ...recruiterDrawerItems,
+        { path: '/pricing', name: 'Upgrade Plan', icon: FaCrown } // Added pricing at the end for both types
       ];
     }
-    return baseDrawerItems;
+    return [
+      ...jobSeekerDrawerItems,
+      { path: '/pricing', name: 'Upgrade Plan', icon: FaCrown }
+    ];
   };
 
   const drawerItems = getDrawerItems();
@@ -718,9 +727,15 @@ const Navbar = () => {
                         <item.icon className="text-base" />
                         <span>{item.name}</span>
                         {/* Special badge for recruiter items */}
-                        {item.name === 'Post a Job' && (
+                        {(item.name === 'Post a Job' || item.name === 'My Jobs') && userType === 'recruiter' && (
                           <span className="ml-auto px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
                             Recruiter
+                          </span>
+                        )}
+                        {/* Special badge for job seeker items */}
+                        {item.name === 'My Applications' && userType === 'jobseeker' && (
+                          <span className="ml-auto px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                            Job Seeker
                           </span>
                         )}
                       </NavLink>
