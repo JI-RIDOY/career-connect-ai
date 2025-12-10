@@ -97,11 +97,6 @@ const Navbar = () => {
     { path: '/dashboard', name: 'Dashboard', icon: FaUser },
     { path: '/my-jobs', name: 'My Jobs', icon: FaBriefcaseMedical },
     { path: '/post-job', name: 'Post a Job', icon: FaBusinessTime },
-    { path: '/learning-path', name: 'Learning Path', icon: FaStreetView },
-    { path: '/create-resume', name: 'Create Resume', icon: FaFileAlt },
-    { path: '/create-cv', name: 'Create CV', icon: FaFilePdf },
-    { path: '/mock-interview', name: 'Mock Interview', icon: FaVideo },
-    { path: '/ats-score', name: 'ATS Score Check', icon: FaChartBar },
     { path: '/settings', name: 'Settings', icon: FaCog },
   ];
 
