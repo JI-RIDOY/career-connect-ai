@@ -141,7 +141,7 @@ const CreatePostModal = React.memo(({ isOpen, onClose, onSuccess }) => {
                     <div className="flex items-center space-x-3">
                         <div className="relative">
                             <img
-                                src={userProfile?.photoURL || user?.photoURL || '/default-avatar.png'}
+                                src={user?.photoURL || user?.photoURL || '/default-avatar.png'}
                                 alt="Profile"
                                 className="w-12 h-12 rounded-full object-cover border-2 border-blue-500/20"
                                 onError={(e) => e.target.src = '/default-avatar.png'}
@@ -349,7 +349,7 @@ const FeedContent = () => {
                     <div className="flex items-center space-x-3">
                         <div className="relative">
                             <img
-                                src={post.userProfile?.photoURL || '/default-avatar.png'}
+                                src={user.photoURL || '/default-avatar.png'}
                                 alt="Profile"
                                 className="w-12 h-12 rounded-full object-cover border-2 border-blue-500/20"
                                 onError={(e) => e.target.src = '/default-avatar.png'}
