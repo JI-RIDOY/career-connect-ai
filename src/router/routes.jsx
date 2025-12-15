@@ -17,6 +17,7 @@ import MyJobs from "../pages/MyJobs";
 import MyApplications from "../pages/MyApplications";
 import JobApplications from "../pages/JobApplications";
 import EditJob from "../pages/EditJob";
+import Network from "../pages/Network";
 
 export const router = createBrowserRouter([
   {
@@ -82,6 +83,10 @@ export const router = createBrowserRouter([
         {
           path: '/edit-job/:id',
           Component: EditJob
+        },
+        {
+          path: '/network',
+          Component: Network
         }
     ]
   },
