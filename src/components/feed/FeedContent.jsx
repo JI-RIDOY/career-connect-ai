@@ -18,7 +18,6 @@ import {
 } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 
-// ====== আলাদা কম্পোনেন্ট: CreatePostModal (এটাই মূল ফিক্স) ======
 const CreatePostModal = React.memo(({ isOpen, onClose, onSuccess }) => {
     const [content, setContent] = useState('');
     const [imageUrl, setImageUrl] = useState('');
@@ -230,7 +229,6 @@ const CreatePostModal = React.memo(({ isOpen, onClose, onSuccess }) => {
     );
 });
 
-// ====== মূল FeedContent কম্পোনেন্ট ======
 const FeedContent = () => {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -416,9 +414,6 @@ const FeedContent = () => {
                     <button onClick={() => setSelectedPost(post)} className="flex-1 mx-1 py-3 rounded-xl flex items-center justify-center space-x-2 text-gray-600 hover:bg-gray-100">
                         <FaComment /><span>Comment</span>
                     </button>
-                    <button className="flex-1 mx-1 py-3 rounded-xl flex items-center justify-center space-x-2 text-gray-600 hover:bg-gray-100">
-                        <FaShare /><span>Share</span>
-                    </button>
                 </div>
             </div>
         </motion.div>
@@ -426,7 +421,7 @@ const FeedContent = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
-            <div className="max-w-2xl mx-auto px-4 ">
+            <div className="max-w-2xl mx-auto  ">
 
                 {error && (
                     <div className="mb-6 bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center justify-between">
@@ -449,7 +444,7 @@ const FeedContent = () => {
                         />
                         <button
                             onClick={() => setShowCreateModal(true)}
-                            className="flex-1 text-left px-6 py-4 bg-gray-100 hover:bg-gray-200 rounded-2xl text-gray-500 font-medium"
+                            className="flex-1 text-sm text-left px-6 py-4 bg-gray-100 hover:bg-gray-200 rounded-2xl text-gray-500 font-medium"
                         >
                             What's on your mind?
                         </button>

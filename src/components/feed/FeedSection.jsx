@@ -30,7 +30,7 @@ const FeedSection = () => {
                 />
             )}
 
-            <div className="w-11/12 mx-auto px-4 lg:px-8 py-6">
+            <div className="w-11/12 mx-auto lg:px-4 py-6">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     
                     {/* AI Coach Widget - 4 columns on desktop, hidden on mobile by default */}
