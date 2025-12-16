@@ -21,7 +21,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router';
 
 const Network = () => {
-  const { user, userProfile } = useAuth();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('all');
   const [connections, setConnections] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
@@ -402,25 +402,6 @@ const Network = () => {
   );
 
   const ProfessionFilter = () => {
-    const professions = Array.from(
-      new Set(connections.map(u => u.profession).filter(Boolean))
-    );
-
-    return (
-      <div className="relative">
-        <select
-          value={filterProfession}
-          onChange={(e) => setFilterProfession(e.target.value)}
-          className="appearance-none bg-white border border-gray-300 rounded-xl pl-10 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option value="">All Professions</option>
-          {professions.map((prof) => (
-            <option key={prof} value={prof}>{prof}</option>
-          ))}
-        </select>
-        <FaFilter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-      </div>
-    );
   };
 
   if (loading && activeTab === 'all') {
@@ -450,43 +431,6 @@ const Network = () => {
               <p className="text-gray-600 mt-2">
                 Connect with professionals and grow your career network
               </p>
-            </div>
-          </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            <div className="bg-white rounded-2xl p-6 border border-gray-200">
-              <div className="flex items-center">
-                <div className="p-3 bg-blue-100 rounded-xl mr-4">
-                  <FaUserCheck className="text-blue-600 text-xl" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Connections</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.totalConnections}</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white rounded-2xl p-6 border border-gray-200">
-              <div className="flex items-center">
-                <div className="p-3 bg-yellow-100 rounded-xl mr-4">
-                  <FaClock className="text-yellow-600 text-xl" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Pending Requests</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.pendingRequests}</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white rounded-2xl p-6 border border-gray-200">
-              <div className="flex items-center">
-                <div className="p-3 bg-green-100 rounded-xl mr-4">
-                  <FaEnvelope className="text-green-600 text-xl" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Sent Requests</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.sentRequests}</p>
-                </div>
-              </div>
             </div>
           </div>
         </motion.div>
@@ -547,7 +491,7 @@ const Network = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="grid grid-cols-1 lg:grid-cols-4 gap-6"
+              className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6"
             >
               {activeTab === 'pending' && (
                 pendingRequests.length > 0 ? (
@@ -560,7 +504,7 @@ const Network = () => {
                     />
                   ))
                 ) : (
-                  <div className="col-span-2 text-center py-12">
+                  <div className="col-span-2 text-center py-12 flex flex-col items-center">
                     <div className="text-gray-400 text-4xl mb-4">
                       <FaClock />
                     </div>
@@ -584,7 +528,7 @@ const Network = () => {
                     />
                   ))
                 ) : (
-                  <div className="col-span-2 text-center py-12">
+                  <div className="col-span-2 text-center py-12 flex flex-col items-center">
                     <div className="text-gray-400 text-4xl mb-4">
                       <FaEnvelope />
                     </div>
@@ -608,7 +552,7 @@ const Network = () => {
                     />
                   ))
                 ) : (
-                  <div className="col-span-2 text-center py-12">
+                  <div className="col-span-2 text-center py-12 flex flex-col items-center">
                     <div className="text-gray-400 text-4xl mb-4">
                       <FaUserPlus />
                     </div>
@@ -632,7 +576,7 @@ const Network = () => {
                     />
                   ))
                 ) : (
-                  <div className="col-span-2 text-center py-12">
+                  <div className="col-span-2 text-center py-12 flex flex-col items-center">
                     <div className="text-gray-400 text-4xl mb-4">
                       {activeTab === 'connections' ? <FaUserCheck /> : <FaUsers />}
                     </div>
