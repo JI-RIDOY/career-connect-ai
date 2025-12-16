@@ -504,7 +504,7 @@ const Network = () => {
                     />
                   ))
                 ) : (
-                  <div className="col-span-2 text-center py-12 flex flex-col items-center">
+                  <div className="col-span-2 text-center py-12 flex flex-col items-center col-span-full">
                     <div className="text-gray-400 text-4xl mb-4">
                       <FaClock />
                     </div>
@@ -528,7 +528,7 @@ const Network = () => {
                     />
                   ))
                 ) : (
-                  <div className="col-span-2 text-center py-12 flex flex-col items-center">
+                  <div className="col-span-2 text-center py-12 flex flex-col items-center col-span-full">
                     <div className="text-gray-400 text-4xl mb-4">
                       <FaEnvelope />
                     </div>
@@ -552,7 +552,7 @@ const Network = () => {
                     />
                   ))
                 ) : (
-                  <div className="col-span-2 text-center py-12 flex flex-col items-center">
+                  <div className="col-span-2 text-center py-12 flex flex-col items-center col-span-full">
                     <div className="text-gray-400 text-4xl mb-4">
                       <FaUserPlus />
                     </div>
@@ -576,7 +576,7 @@ const Network = () => {
                     />
                   ))
                 ) : (
-                  <div className="col-span-2 text-center py-12 flex flex-col items-center">
+                  <div className="col-span-2 text-center py-12 flex flex-col items-center col-span-full">
                     <div className="text-gray-400 text-4xl mb-4">
                       {activeTab === 'connections' ? <FaUserCheck /> : <FaUsers />}
                     </div>
