@@ -491,7 +491,7 @@ const Network = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6"
+              className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6"
             >
               {activeTab === 'pending' && (
                 pendingRequests.length > 0 ? (
