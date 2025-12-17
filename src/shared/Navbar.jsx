@@ -293,9 +293,9 @@ const Navbar = () => {
                   <div>
                     <img src="/logo.jpg" alt="LOGO" className='h-10 w-10' />
                   </div>
-                  <div className='flex flex-col hidden lg:flex'>
-                    <span className=' text-2xl font-bold text-blue-500'>Career</span>
-                    <span className='text-sm font-bold text-blue-400'>Connect AI</span>
+                  <div className='flex flex-col'>
+                    <span className='text-md md:text-2xl font-bold text-blue-500'>Career</span>
+                    <span className='text-xs md:text-sm font-bold text-blue-400'>Connect AI</span>
                   </div>
                 </NavLink>
               </motion.div>
