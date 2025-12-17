@@ -5,13 +5,16 @@ import { router } from './router/routes'
 import { RouterProvider } from 'react-router/dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { SocketProvider } from './contexts/SocketContext'
+import { NotificationProvider } from './contexts/NotificationContext'
 
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
       <SocketProvider>
-        <RouterProvider router={router} />
+        <NotificationProvider>
+          <RouterProvider router={router} />
+        </NotificationProvider>
       </SocketProvider>
     </AuthProvider>
   </StrictMode>,

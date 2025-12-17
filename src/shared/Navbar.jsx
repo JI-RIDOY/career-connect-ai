@@ -29,6 +29,7 @@ import {
   FaBriefcaseMedical
 } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
+import NotificationBell from '../components/notification/NotificationBell';
 
 const Navbar = () => {
   const { user, userProfile, logout } = useAuth();
@@ -337,40 +338,6 @@ const Navbar = () => {
                     </NavLink>
                   </motion.div>
                 ))}
-
-                {/* Notification Bell - Desktop */}
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <NavLink
-                    to="/notification"
-                    className={({ isActive }) =>
-                      `flex items-center space-x-2 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 relative group ${isActive
-                        ? 'text-blue-600 border border-blue-200/50'
-                        : 'text-gray-600 hover:text-blue-600 backdrop-blur-2xl hover:shadow-lg '
-                      }`
-                    }
-                  >
-                    {({ isActive }) => (
-                      <>
-                        <FaBell
-                          className={`text-base transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110'
-                            }`}
-                        />
-                        <span>Notification</span>
-                        {isActive && (
-                          <motion.div
-                            className="absolute inset-0 border-2 border-blue-500/30 rounded-2xl"
-                            layoutId="activeNav"
-                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                          />
-                        )}
-                      </>
-                    )}
-                  </NavLink>
-                </motion.div>
               </div>
 
               {/* User Profile - Desktop */}
@@ -401,6 +368,7 @@ const Navbar = () => {
                     </div>
                   </button>
                 </motion.div>
+                <NotificationBell />
               </motion.div>
               <div className='flex'>
                 {/* Notification Bell - Mobile Top */}
@@ -410,17 +378,7 @@ const Navbar = () => {
                   transition={{ delay: 0.4 }}
                   className="md:hidden flex items-center"
                 >
-                  <NavLink
-                    to="/notification"
-                    className={({ isActive }) =>
-                      `flex items-center p-3 rounded-2xl text-sm font-semibold transition-all duration-300 ${isActive
-                        ? 'text-blue-600 bg-blue-50/80'
-                        : 'text-gray-600 hover:text-blue-600 hover:bg-white/80'
-                      }`
-                    }
-                  >
-                    <FaBell className="text-lg" />
-                  </NavLink>
+                  <NotificationBell />
                 </motion.div>
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
