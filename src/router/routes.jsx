@@ -18,6 +18,7 @@ import MyApplications from "../pages/MyApplications";
 import JobApplications from "../pages/JobApplications";
 import EditJob from "../pages/EditJob";
 import Network from "../pages/Network";
+import Messages from "../pages/Messages";
 
 export const router = createBrowserRouter([
   {
@@ -87,6 +88,10 @@ export const router = createBrowserRouter([
         {
           path: '/network',
           Component: Network
+        },
+        {
+          path:'/messages',
+          Component: Messages,
         }
     ]
   },

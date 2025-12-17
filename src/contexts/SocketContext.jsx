@@ -1,44 +1,42 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import io from 'socket.io-client';
+// src/contexts/SocketContext.jsx
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 
-const SocketContext = createContext(null);
+const SocketContext = createContext();
 
-export const useSocket = () => {
-    const context = useContext(SocketContext);
-    if (!context) {
-        throw new Error('useSocket must be used within a SocketProvider');
-    }
-    return context;
-};
+export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = ({ children }) => {
-    const { user } = useAuth();
-    const [socket, setSocket] = useState(null);
+  const { user } = useAuth();
+  const [socket, setSocket] = useState(null);
 
-    useEffect(() => {
-        if (user && !socket) {
-            const socketInstance = io('http://localhost:5000', {
-                withCredentials: true,
-                transports: ['websocket', 'polling']
-            });
+  useEffect(() => {
+    if (user && !socket) {
+      const newSocket = io('http://localhost:5000', {
+        withCredentials: true,
+        transports: ['websocket', 'polling']
+      });
 
-            // Register user
-            socketInstance.emit('register-user', user.uid);
+      setSocket(newSocket);
 
-            setSocket(socketInstance);
+      // Set user as online
+      newSocket.emit('user-online', user.uid);
 
-            return () => {
-                if (socketInstance) {
-                    socketInstance.disconnect();
-                }
-            };
-        }
-    }, [user]);
+      return () => {
+        newSocket.disconnect();
+      };
+    }
 
-    return (
-        <SocketContext.Provider value={socket}>
-            {children}
-        </SocketContext.Provider>
-    );
+    if (!user && socket) {
+      socket.disconnect();
+      setSocket(null);
+    }
+  }, [user]);
+
+  return (
+    <SocketContext.Provider value={socket}>
+      {children}
+    </SocketContext.Provider>
+  );
 };
