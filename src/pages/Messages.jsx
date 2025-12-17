@@ -361,7 +361,7 @@ const Messages = () => {
             <div className="overflow-y-auto h-[calc(100vh-120px)]">
               {filteredConversations.length === 0 ? (
                 <div className="text-center py-12">
-                  <div className="text-gray-400 text-4xl mb-4">
+                  <div className="text-gray-400 text-4xl mb-4 flex justify-center items-center">
                     <FaComments />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-700 mb-2">

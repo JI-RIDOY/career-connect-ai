@@ -280,7 +280,7 @@ const Navbar = () => {
           }}
           className="bg-white/90 backdrop-blur-2xl shadow-sm border-b border-gray-100/80 sticky top-0 z-50"
         >
-          <div className="w-11/12 mx-auto lg:px-8">
+          <div className="w-11/12 mx-auto lg:px-4">
             <div className="flex justify-between items-center h-16">
 
               {/* Logo */}
@@ -298,23 +298,6 @@ const Navbar = () => {
                     <span className='text-sm font-bold text-blue-400'>Connect AI</span>
                   </div>
                 </NavLink>
-              </motion.div>
-
-              {/* Search Bar - Always visible on mobile */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
-                className="flex-1 max-w-2xl lg:mx-8"
-              >
-                <div className="relative w-full group">
-                  <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm transition-colors duration-200 group-focus-within:text-blue-500" />
-                  <input
-                    type="text"
-                    placeholder="Search jobs, companies, or skills..."
-                    className="w-full px-4 py-3.5 bg-gray-50/70 border border-gray-200/80 rounded-2xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 backdrop-blur-sm text-sm font-medium placeholder-gray-400 group-hover:bg-white/80"
-                  />
-                </div>
               </motion.div>
 
               {/* Desktop Navigation */}
@@ -419,44 +402,45 @@ const Navbar = () => {
                   </button>
                 </motion.div>
               </motion.div>
-
-              {/* Notification Bell - Mobile Top */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4 }}
-                className="md:hidden flex items-center"
-              >
-                <NavLink
-                  to="/notification"
-                  className={({ isActive }) =>
-                    `flex items-center p-3 rounded-2xl text-sm font-semibold transition-all duration-300 ${isActive
-                      ? 'text-blue-600 bg-blue-50/80'
-                      : 'text-gray-600 hover:text-blue-600 hover:bg-white/80'
-                    }`
-                  }
+              <div className='flex'>
+                {/* Notification Bell - Mobile Top */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="md:hidden flex items-center"
                 >
-                  <FaBell className="text-lg" />
-                </NavLink>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4 }}
-                className="md:hidden flex items-center"
-              >
-                <NavLink
-                  to="/jobs"
-                  className={({ isActive }) =>
-                    `flex items-center p-3 rounded-2xl text-sm font-semibold transition-all duration-300 ${isActive
-                      ? 'text-blue-600 bg-blue-50/80'
-                      : 'text-gray-600 hover:text-blue-600 hover:bg-white/80'
-                    }`
-                  }
+                  <NavLink
+                    to="/notification"
+                    className={({ isActive }) =>
+                      `flex items-center p-3 rounded-2xl text-sm font-semibold transition-all duration-300 ${isActive
+                        ? 'text-blue-600 bg-blue-50/80'
+                        : 'text-gray-600 hover:text-blue-600 hover:bg-white/80'
+                      }`
+                    }
+                  >
+                    <FaBell className="text-lg" />
+                  </NavLink>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="md:hidden flex items-center"
                 >
-                  <FaBriefcase className="text-lg" />
-                </NavLink>
-              </motion.div>
+                  <NavLink
+                    to="/jobs"
+                    className={({ isActive }) =>
+                      `flex items-center p-3 rounded-2xl text-sm font-semibold transition-all duration-300 ${isActive
+                        ? 'text-blue-600 bg-blue-50/80'
+                        : 'text-gray-600 hover:text-blue-600 hover:bg-white/80'
+                      }`
+                    }
+                  >
+                    <FaBriefcase className="text-lg" />
+                  </NavLink>
+                </motion.div>
+              </div>
             </div>
           </div>
         </motion.nav>
