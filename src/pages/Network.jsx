@@ -316,18 +316,6 @@ const Network = () => {
             {user.displayName || 'Anonymous User'}
           </h3>
           <div className="flex items-center space-x-4 mt-2">
-            {user.profession && (
-              <div className="flex items-center text-sm text-gray-600">
-                <FaBriefcase className="mr-2 text-gray-400" />
-                <span>{user?.profession}</span>
-              </div>
-            )}
-            {user.location && (
-              <div className="flex items-center text-sm text-gray-600">
-                <FaMapMarkerAlt className="mr-2 text-gray-400" />
-                <span>{user?.location}</span>
-              </div>
-            )}
           </div>
           
           {isRequest && request?.message && (
@@ -341,13 +329,6 @@ const Network = () => {
         <div className="flex flex-col space-y-2">
           {!isRequest && user.connectionStatus === 'accepted' && (
             <>
-              <button
-                onClick={() => window.open(`mailto:${user.email}`, '_blank')}
-                className="flex items-center justify-center px-4 py-2 bg-blue-50 text-blue-600 rounded-xl text-sm font-semibold hover:bg-blue-100 transition-colors"
-              >
-                <FaEnvelope className="mr-2" />
-                Message
-              </button>
               <button
                 onClick={() => removeConnection(user.connectionId)}
                 className="flex items-center justify-center px-4 py-2 bg-red-50 text-red-600 rounded-xl text-sm font-semibold hover:bg-red-100 transition-colors"
@@ -379,7 +360,7 @@ const Network = () => {
           )}
 
           {isRequest && (
-            <div className="flex space-x-2">
+            <div className="flex flex-col gap-3 mt-3">
               <button
                 onClick={() => acceptConnectionRequest(request._id)}
                 className="flex items-center justify-center px-4 py-2 bg-green-500 text-white rounded-xl text-sm font-semibold hover:bg-green-600 transition-colors hover:shadow-lg hover:shadow-green-500/25"
