@@ -160,7 +160,14 @@ const Network = () => {
       const data = await response.json();
       
       if (data.success) {
-        setSentRequests(data.requests);
+        const sentRequestsWithStatus = data.requests.map(request => ({
+          ...request.receiver,
+          connectionStatus: 'pending',
+          connectionId: request._id,
+          isSender: true,
+          request: request
+        }));
+        setSentRequests(sentRequestsWithStatus);
       }
     } catch (error) {
       console.error('Error loading sent requests:', error);
@@ -173,7 +180,22 @@ const Network = () => {
       const data = await response.json();
       
       if (data.success) {
-        setSuggestions(data.suggestions);
+        const suggestionsWithStatus = await Promise.all(
+          data.suggestions.map(async (suggestion) => {
+            const statusResponse = await fetch(
+              `http://localhost:5000/api/connections/status/${user.uid}/${suggestion.uid}`
+            );
+            const statusData = await statusResponse.json();
+            
+            return {
+              ...suggestion,
+              connectionStatus: statusData.status || null,
+              connectionId: statusData.connectionId,
+              isSender: statusData.senderId === user.uid
+            };
+          })
+        );
+        setSuggestions(suggestionsWithStatus);
       }
     } catch (error) {
       console.error('Error loading suggestions:', error);
@@ -308,13 +330,13 @@ const Network = () => {
     setShowUserModal(true);
   };
 
-  const filteredConnections = connections.filter(user => {
+  const filteredConnections = connections.filter(userItem => {
     const matchesSearch = searchTerm === '' || 
-      user.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.profession?.toLowerCase().includes(searchTerm.toLowerCase());
+      userItem.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      userItem.profession?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesProfession = filterProfession === '' || 
-      user.profession === filterProfession;
+      userItem.profession === filterProfession;
     
     return matchesSearch && matchesProfession;
   });
@@ -327,7 +349,7 @@ const Network = () => {
     { id: 'suggestions', label: 'Suggestions', icon: FaUserPlus, count: suggestions.length }
   ];
 
-  const ConnectionCard = ({ user, isRequest = false, request = null }) => (
+  const ConnectionCard = ({ user: userItem, isRequest = false, request = null }) => (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -337,10 +359,10 @@ const Network = () => {
         {/* Profile Image */}
         <div className="flex-shrink-0">
           <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-blue-100 to-blue-50">
-            {user.photoURL ? (
+            {userItem.photoURL ? (
               <img
-                src={user.photoURL}
-                alt={user.displayName}
+                src={userItem.photoURL}
+                alt={userItem.displayName}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -354,29 +376,29 @@ const Network = () => {
         {/* User Info */}
         <div className="flex-1 min-w-0">
           <h3 className="font-bold text-gray-900 text-lg truncate">
-            {user.displayName || 'Anonymous User'}
+            {userItem.displayName || 'Anonymous User'}
           </h3>
           
           <div className="flex items-center mt-1">
-            {user.userType === 'jobSeeker' ? (
+            {userItem.userType === 'jobSeeker' ? (
               <FaSuitcase className="text-gray-400 text-sm mr-1" />
             ) : (
               <FaBriefcase className="text-gray-400 text-sm mr-1" />
             )}
-            <span className="text-sm text-gray-600 capitalize">{user.userType || 'User'}</span>
+            <span className="text-sm text-gray-600 capitalize">{userItem.userType || 'User'}</span>
           </div>
           
-          {user.location && (
+          {userItem.location && (
             <div className="flex items-center mt-1">
               <FaMapMarkerAlt className="text-gray-400 text-sm mr-1" />
-              <span className="text-sm text-gray-600">{user.location}</span>
+              <span className="text-sm text-gray-600">{userItem.location}</span>
             </div>
           )}
           
-          {user.fieldOfStudy && (
+          {userItem.fieldOfStudy && (
             <div className="flex items-center mt-1">
               <FaGraduationCap className="text-gray-400 text-sm mr-1" />
-              <span className="text-sm text-gray-600">{user.fieldOfStudy}</span>
+              <span className="text-sm text-gray-600">{userItem.fieldOfStudy}</span>
             </div>
           )}
           
@@ -390,16 +412,16 @@ const Network = () => {
         {/* Action Buttons */}
         <div className="flex flex-col space-y-2">
           <button
-            onClick={() => openUserModal({...user, request})}
+            onClick={() => openUserModal({...userItem, request})}
             className="flex items-center justify-center px-4 py-2 bg-blue-50 text-blue-600 rounded-xl text-sm font-semibold hover:bg-blue-100 transition-colors"
           >
             <FaEye className="mr-2" />
             View More
           </button>
           
-          {!isRequest && user.connectionStatus === 'accepted' && (
+          {!isRequest && userItem.connectionStatus === 'accepted' && (
             <button
-              onClick={() => removeConnection(user.connectionId)}
+              onClick={() => removeConnection(userItem.connectionId)}
               className="flex items-center justify-center px-4 py-2 bg-red-50 text-red-600 rounded-xl text-sm font-semibold hover:bg-red-100 transition-colors"
             >
               <FaTrash className="mr-2" />
@@ -407,9 +429,9 @@ const Network = () => {
             </button>
           )}
 
-          {!isRequest && user.connectionStatus === 'pending' && user.isSender && (
+          {!isRequest && userItem.connectionStatus === 'pending' && userItem.isSender && (
             <button
-              onClick={() => withdrawConnectionRequest(user.connectionId)}
+              onClick={() => withdrawConnectionRequest(userItem.connectionId)}
               className="flex items-center justify-center px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-sm font-semibold hover:bg-gray-200 transition-colors"
             >
               <FaTimes className="mr-2" />
@@ -484,7 +506,7 @@ const Network = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-transparent bg-opacity-50 backdrop-blur-lg"
             onClick={() => setShowUserModal(false)}
           >
             <motion.div
@@ -584,7 +606,10 @@ const Network = () => {
                           </div>
                         )}
                         
-                        {!selectedUser.connectionStatus && (
+                        {/* Show Connect button for users who are not connected, not pending, and not in sent requests */}
+                        {(!selectedUser.connectionStatus || 
+                          (selectedUser.connectionStatus === null) ||
+                          (activeTab === 'sent' && !selectedUser.connectionStatus)) && (
                           <button
                             onClick={() => sendConnectionRequest(selectedUser.uid)}
                             className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-xl font-semibold hover:bg-blue-600 transition-colors"
@@ -917,7 +942,7 @@ const Network = () => {
                   sentRequests.map((request) => (
                     <ConnectionCard
                       key={request._id}
-                      user={request.receiver}
+                      user={request}
                       isRequest={false}
                     />
                   ))
@@ -938,10 +963,10 @@ const Network = () => {
 
               {activeTab === 'suggestions' && (
                 suggestions.length > 0 ? (
-                  suggestions.map((user) => (
+                  suggestions.map((userItem) => (
                     <ConnectionCard
-                      key={user.uid}
-                      user={user}
+                      key={userItem.uid}
+                      user={userItem}
                       isRequest={false}
                     />
                   ))
@@ -962,10 +987,10 @@ const Network = () => {
 
               {(activeTab === 'all' || activeTab === 'connections') && (
                 filteredConnections.length > 0 ? (
-                  filteredConnections.map((user) => (
+                  filteredConnections.map((userItem) => (
                     <ConnectionCard
-                      key={user.uid}
-                      user={user}
+                      key={userItem.uid}
+                      user={userItem}
                       isRequest={false}
                     />
                   ))
