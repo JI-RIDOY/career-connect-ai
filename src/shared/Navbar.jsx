@@ -801,7 +801,7 @@ const Navbar = () => {
                   boxShadow: "0 20px 40px -10px rgba(59, 130, 246, 0.4)"
                 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => navigate('/auth/login')}
+                onClick={() => navigate('/auth/sign-up')}
                 className="bg-blue-400 text-white px-7 py-2.5 cursor-pointer rounded-2xl text-sm font-semibold hover:shadow-xl transition-all duration-200 flex items-center space-x-2 shadow-lg shadow-blue-500/25"
               >
                 <FaUserPlus className="text-sm" />

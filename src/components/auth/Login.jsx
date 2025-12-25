@@ -4,8 +4,6 @@ import { Link, useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaGoogle, 
-  FaFacebook, 
-  FaApple,
   FaEnvelope,
   FaLock,
   FaEye,
@@ -14,6 +12,7 @@ import {
   FaExclamationTriangle
 } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
+import toast from 'react-hot-toast';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -21,6 +20,7 @@ const Login = () => {
     email: '',
     password: ''
   });
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const { logIn, signInWithGoogle, error, clearError, user } = useAuth();
   const navigate = useNavigate();
@@ -49,10 +49,15 @@ const Login = () => {
   async function handleGoogleLogin() {
     try {
       clearError();
+      setIsLoggingIn(true);
       await signInWithGoogle();
+      toast.success('Logged in successfully!');
       navigate('/');
     } catch (error) {
       console.error('Google login failed:', error);
+      toast.error('Google login failed. Please try again.');
+    } finally {
+      setIsLoggingIn(false);
     }
   }
 
@@ -61,17 +66,33 @@ const Login = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+    clearError();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     clearError();
+    setIsLoggingIn(true);
 
     try {
       await logIn(formData.email, formData.password);
+      toast.success('Logged in successfully!');
       navigate('/');
     } catch (error) {
       console.error('Login failed:', error);
+      
+      // Show appropriate error message
+      if (error.message.includes('Account not found')) {
+        toast.error('Account not found. Please sign up first.');
+      } else if (error.message.includes('wrong-password') || error.message.includes('invalid-credential')) {
+        toast.error('Invalid email or password');
+      } else if (error.message.includes('user-not-found')) {
+        toast.error('No account found with this email');
+      } else {
+        toast.error('Login failed. Please try again.');
+      }
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -88,7 +109,11 @@ const Login = () => {
         <FaExclamationTriangle className="text-red-500 mt-0.5 flex-shrink-0" />
         <div>
           <p className="text-red-800 text-sm font-medium">Login failed</p>
-          <p className="text-red-600 text-sm mt-1">{error}</p>
+          <p className="text-red-600 text-sm mt-1">
+            {error.includes('Account not found') 
+              ? 'Account not found. Please sign up first.' 
+              : error}
+          </p>
         </div>
       </motion.div>
     );
@@ -147,6 +172,7 @@ const Login = () => {
                   placeholder="you@example.com"
                   className="w-full pl-12 pr-4 py-3.5 bg-gray-50/70 border border-gray-200/80 rounded-2xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 text-sm font-medium placeholder-gray-400 group-hover:bg-white/80"
                   required
+                  disabled={isLoggingIn}
                 />
                 <FaEnvelope className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm transition-colors duration-200 group-focus-within:text-blue-500" />
               </div>
@@ -164,12 +190,14 @@ const Login = () => {
                   placeholder="Enter your password"
                   className="w-full pl-12 pr-12 py-3.5 bg-gray-50/70 border border-gray-200/80 rounded-2xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 text-sm font-medium placeholder-gray-400 group-hover:bg-white/80"
                   required
+                  disabled={isLoggingIn}
                 />
                 <FaLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm transition-colors duration-200 group-focus-within:text-blue-500" />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                  disabled={isLoggingIn}
                 >
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
@@ -185,9 +213,12 @@ const Login = () => {
             }}
             whileTap={{ scale: 0.98 }}
             type="submit"
-            className="w-full bg-blue-500 text-white py-4 px-6 rounded-2xl text-base font-semibold hover:shadow-xl transition-all duration-200 shadow-lg shadow-blue-500/25"
+            disabled={isLoggingIn}
+            className={`w-full bg-blue-500 text-white py-4 px-6 rounded-2xl text-base font-semibold hover:shadow-xl transition-all duration-200 shadow-lg shadow-blue-500/25 ${
+              isLoggingIn ? 'opacity-70 cursor-not-allowed' : ''
+            }`}
           >
-            Sign In
+            {isLoggingIn ? 'Logging in...' : 'Sign In'}
           </motion.button>
         </form>
 
@@ -207,9 +238,12 @@ const Login = () => {
             <motion.button
               key={social.name}
               onClick={social.handler}
+              disabled={isLoggingIn}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`${social.color} py-3 px-4 rounded-2xl text-sm font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2 bg-white/50 backdrop-blur-sm`}
+              className={`${social.color} py-3 px-4 rounded-2xl text-sm font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2 bg-white/50 backdrop-blur-sm ${
+                isLoggingIn ? 'opacity-70 cursor-not-allowed' : ''
+              }`}
             >
               <social.icon className="text-base" />
               <span>{social.name}</span>

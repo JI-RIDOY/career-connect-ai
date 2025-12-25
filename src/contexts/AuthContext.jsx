@@ -63,6 +63,15 @@ export const AuthProvider = ({ children }) => {
   const getUserFromBackend = async (uid) => {
     try {
       const response = await fetch(`http://localhost:5000/api/users/${uid}`);
+      
+      if (!response.ok) {
+        // If user not found (404), return null
+        if (response.status === 404) {
+          return null;
+        }
+        throw new Error('Failed to fetch user from backend');
+      }
+      
       const result = await response.json();
 
       if (result.success) {
@@ -72,6 +81,17 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Error fetching user from backend:', error);
       return null;
+    }
+  };
+
+  // Check if user exists in backend
+  const checkUserExistsInBackend = async (uid) => {
+    try {
+      const user = await getUserFromBackend(uid);
+      return user !== null;
+    } catch (error) {
+      console.error('Error checking user existence:', error);
+      return false;
     }
   };
 
@@ -102,8 +122,6 @@ export const AuthProvider = ({ children }) => {
         profileCompleted: false,
         package: userData?.package || 'Basic',
         createdAt: new Date().toISOString(),
-
-
       };
 
       // Save user to backend
@@ -121,11 +139,28 @@ export const AuthProvider = ({ children }) => {
   const logIn = async (email, password) => {
     try {
       setError('');
+      
+      // First, sign in with Firebase
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const firebaseUser = userCredential.user;
 
-      // Fetch user profile from backend
-      const userProfile = await getUserFromBackend(userCredential.user.uid);
-      setUserProfile(userProfile);
+      // Check if user exists in backend database
+      const backendUser = await getUserFromBackend(firebaseUser.uid);
+      
+      if (!backendUser) {
+        // User doesn't exist in backend, sign them out from Firebase
+        await signOut(auth);
+        
+        // Clear user state
+        setUser(null);
+        setUserProfile(null);
+        
+        throw new Error('Account not found. Please sign up first.');
+      }
+
+      // User exists in backend, set the profile
+      setUserProfile(backendUser);
+      setUser(firebaseUser);
 
       return userCredential;
     } catch (error) {
@@ -141,21 +176,27 @@ export const AuthProvider = ({ children }) => {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
-      // Prepare user data for backend
-      const userData = {
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        package: 'Basic',
-        packageExpiry: null,
-        createdAt: new Date().toISOString(),
-      };
+      // Check if user already exists in backend
+      let backendUser = await getUserFromBackend(user.uid);
+      
+      if (!backendUser) {
+        // Prepare user data for backend
+        const userData = {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          package: 'Basic',
+          packageExpiry: null,
+          createdAt: new Date().toISOString(),
+          profileCompleted: false
+        };
 
-      // Save/update user in backend
-      const savedUser = await saveUserToBackend(userData);
-      setUserProfile(savedUser);
+        // Save user in backend
+        backendUser = await saveUserToBackend(userData);
+      }
 
+      setUserProfile(backendUser);
       return result;
     } catch (error) {
       setError(error.message);
@@ -204,21 +245,36 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
+  // Handle auth state change
+  const handleAuthStateChange = async (currentUser) => {
+    setUser(currentUser);
 
-      if (currentUser) {
+    if (currentUser) {
+      try {
         // Fetch user profile from backend
         const userProfile = await getUserFromBackend(currentUser.uid);
-        setUserProfile(userProfile);
-      } else {
-        setUserProfile(null);
+        
+        if (userProfile) {
+          setUserProfile(userProfile);
+        } else {
+          // User exists in Firebase but not in backend
+          // This can happen if backend was reset or user was deleted from backend
+          console.warn('User exists in Firebase but not in backend database');
+          // Optionally, you can sign them out here
+          // await logout();
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
       }
+    } else {
+      setUserProfile(null);
+    }
 
-      setLoading(false);
-    });
+    setLoading(false);
+  };
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, handleAuthStateChange);
     return unsubscribe;
   }, [auth]);
 
