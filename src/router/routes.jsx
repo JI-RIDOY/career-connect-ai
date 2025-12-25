@@ -4,7 +4,6 @@ import Home from "../pages/Home";
 import Login from "../components/auth/Login";
 import SignUp from "../components/auth/Signup";
 import Auth from "../layouts/Auth";
-import Dashboard from "../components/dashboard/Dasboard";
 import Payment from "../pages/Payment";
 import ATSScoreCheck from "../pages/ATSScoreCheck";
 import Settings from "../pages/Settings";
@@ -28,10 +27,6 @@ export const router = createBrowserRouter([
         {
             index: true,
             Component: Home,
-        },
-        {
-          path: '/dashboard',
-          Component: Dashboard
         },
         {
           path: '/pricing',

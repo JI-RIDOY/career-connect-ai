@@ -54,7 +54,7 @@ const PostJob = () => {
       const data = await response.json();
       
       if (data.success && data.user.userType !== 'recruiter') {
-        navigate('/dashboard');
+        navigate('/');
       }
     } catch (error) {
       console.error('Error checking user type:', error);

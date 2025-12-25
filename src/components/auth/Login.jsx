@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  FaGithub, 
   FaGoogle, 
   FaFacebook, 
   FaApple,
@@ -29,7 +28,7 @@ const Login = () => {
   // Redirect if user is already logged in
   useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      navigate('/');
     }
   }, [user, navigate]);
 
@@ -45,14 +44,13 @@ const Login = () => {
       color: 'border border-gray-200 text-gray-700 hover:shadow-lg',
       handler: handleGoogleLogin
     },
-    { name: 'GitHub', icon: FaGithub, color: 'border border-gray-200 text-gray-700 hover:shadow-lg', handler: () => {} },
   ];
 
   async function handleGoogleLogin() {
     try {
       clearError();
       await signInWithGoogle();
-      navigate('/dashboard');
+      navigate('/');
     } catch (error) {
       console.error('Google login failed:', error);
     }
@@ -71,7 +69,7 @@ const Login = () => {
 
     try {
       await logIn(formData.email, formData.password);
-      navigate('/dashboard');
+      navigate('/');
     } catch (error) {
       console.error('Login failed:', error);
     }
@@ -179,20 +177,6 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Remember Me & Forgot Password */}
-          <div className="flex items-center justify-between">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-              />
-              <span className="ml-2 text-sm text-gray-600">Remember me</span>
-            </label>
-            <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200">
-              Forgot password?
-            </a>
-          </div>
-
           {/* Submit Button */}
           <motion.button
             whileHover={{ 
@@ -218,7 +202,7 @@ const Login = () => {
         </div>
 
         {/* Social Logins */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3">
           {socialLogins.map((social) => (
             <motion.button
               key={social.name}

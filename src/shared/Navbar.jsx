@@ -83,11 +83,9 @@ const Navbar = () => {
 
   // Job Seeker specific drawer items
   const jobSeekerDrawerItems = [
-    { path: '/dashboard', name: 'Dashboard', icon: FaUser },
     { path: '/my-applications', name: 'My Applications', icon: FaClipboardList },
     { path: '/learning-path', name: 'Learning Path', icon: FaStreetView },
     { path: '/create-resume', name: 'Create Resume', icon: FaFileAlt },
-    { path: '/create-cv', name: 'Create CV', icon: FaFilePdf },
     { path: '/mock-interview', name: 'Mock Interview', icon: FaVideo },
     { path: '/ats-score', name: 'ATS Score Check', icon: FaChartBar },
     { path: '/settings', name: 'Settings', icon: FaCog },
@@ -95,7 +93,6 @@ const Navbar = () => {
 
   // Recruiter-specific drawer items
   const recruiterDrawerItems = [
-    { path: '/dashboard', name: 'Dashboard', icon: FaUser },
     { path: '/my-jobs', name: 'My Jobs', icon: FaBriefcaseMedical },
     { path: '/post-job', name: 'Post a Job', icon: FaBusinessTime },
     { path: '/settings', name: 'Settings', icon: FaCog },
@@ -295,8 +292,8 @@ const Navbar = () => {
                     <img src="/logo.jpg" alt="LOGO" className='h-10 w-10' />
                   </div>
                   <div className='flex flex-col'>
-                    <span className='text-md md:text-2xl font-bold text-blue-500'>Career</span>
-                    <span className='text-xs md:text-sm font-bold text-blue-400'>Connect AI</span>
+                    <span className='text-md md:text-xl font-bold text-blue-500'>Creative</span>
+                    <span className='text-xs md:text-sm font-bold text-blue-400'>Career AI</span>
                   </div>
                 </NavLink>
               </motion.div>

@@ -472,7 +472,7 @@ const FeedContent = () => {
                     </div>
                 ) : posts.length === 0 ? (
                     <div className="text-center py-16 bg-white rounded-2xl">
-                        <div className="text-8xl text-gray-300 mb-4">No posts yet</div>
+                        <div className="text-5xl text-gray-300 mb-4">No posts yet</div>
                         <button
                             onClick={() => setShowCreateModal(true)}
                             className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-xl font-semibold"

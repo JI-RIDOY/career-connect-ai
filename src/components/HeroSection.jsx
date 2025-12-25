@@ -17,7 +17,7 @@ const HeroSection = () => {
     const [messages, setMessages] = useState([
         {
             id: 1,
-            text: "Hello! I'm CareerConnect AI Assistant. I can help you find your dream job, optimize your resume, and prepare for interviews. How can I assist you today?",
+            text: "Hello! I'm Creative Career AI Assistant. I can help you find your dream job, optimize your resume, and prepare for interviews. How can I assist you today?",
             isBot: true,
             timestamp: new Date(),
             isTyping: false
@@ -126,7 +126,7 @@ const HeroSection = () => {
                 messages: [
                     {
                         role: "system",
-                        content: `You are CareerConnect AI, an intelligent career assistant for a job-seeking platform. 
+                        content: `You are Creative Career AI, an intelligent career assistant for a job-seeking platform. 
           
           Platform Features:
           - AI-powered job matching
@@ -136,7 +136,7 @@ const HeroSection = () => {
           - Skill assessment
           
           Navigation Routes:
-          - Home: Main dashboard
+          - Home: Main
           - Network: Professional networking
           - Messages: Communication hub
           - Notification: Alerts and updates

@@ -1,5 +1,5 @@
 // src/pages/Settings.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaUser, 
@@ -19,9 +19,13 @@ import {
   FaExclamationTriangle,
   FaTrash,
   FaPlus,
-  FaEdit
+  FaEdit,
+  FaHome
 } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router';
+import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 const Settings = () => {
   const { user, userProfile, updateUserProfile } = useAuth();
@@ -29,6 +33,8 @@ const Settings = () => {
   const [loading, setLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [isProfileComplete, setIsProfileComplete] = useState(false);
+  const navigate = useNavigate();
 
   // Form state
   const [formData, setFormData] = useState({
@@ -77,6 +83,31 @@ const Settings = () => {
     }
   });
 
+  // Check if personal and education tabs are complete
+  const checkProfileCompletion = useCallback(() => {
+    const personalComplete = 
+      formData.personal.fullName.trim() !== '' &&
+      formData.personal.location.trim() !== '' &&
+      formData.personal.bio.trim() !== '';
+    
+    const educationComplete = 
+      formData.education.highestDegree.trim() !== '' &&
+      formData.education.institution.trim() !== '' &&
+      formData.education.fieldOfStudy.trim() !== '';
+    
+    const preferencesComplete = 
+      formData.preferences.jobTypes.length > 0 &&
+      formData.preferences.remotePreference.trim() !== '' &&
+      formData.preferences.salaryExpectation.trim() !== '';
+
+    return personalComplete && educationComplete && preferencesComplete;
+  }, [formData]);
+
+  // Check profile completion when form data changes
+  useEffect(() => {
+    setIsProfileComplete(checkProfileCompletion());
+  }, [formData, checkProfileCompletion]);
+
   // Initialize form data when user profile loads
   useEffect(() => {
     if (userProfile) {
@@ -124,11 +155,11 @@ const Settings = () => {
   }, [userProfile]);
 
   const tabs = [
-    { id: 'personal', label: 'Personal', icon: FaUser },
-    { id: 'professional', label: 'Professional', icon: FaBriefcase },
-    { id: 'education', label: 'Education', icon: FaGraduationCap },
-    { id: 'preferences', label: 'Preferences', icon: FaCog },
-    { id: 'social', label: 'Social', icon: FaGlobe }
+    { id: 'personal', label: 'Personal', icon: FaUser, required: true },
+    { id: 'professional', label: 'Professional', icon: FaBriefcase, required: false },
+    { id: 'education', label: 'Education', icon: FaGraduationCap, required: true },
+    { id: 'preferences', label: 'Preferences', icon: FaCog, required: true },
+    { id: 'social', label: 'Social', icon: FaGlobe, required: false }
   ];
 
   const jobTypes = [
@@ -155,6 +186,70 @@ const Settings = () => {
     'PhD',
     'Other'
   ];
+
+  // Check if required fields are filled for the active tab
+  const checkRequiredFields = (tabId) => {
+    switch (tabId) {
+      case 'personal':
+        return (
+          formData.personal.fullName.trim() !== '' &&
+          formData.personal.location.trim() !== '' &&
+          formData.personal.bio.trim() !== ''
+        );
+      case 'education':
+        return (
+          formData.education.highestDegree.trim() !== '' &&
+          formData.education.institution.trim() !== '' &&
+          formData.education.fieldOfStudy.trim() !== ''
+        );
+      case 'preferences':
+        return (
+          formData.preferences.jobTypes.length > 0 &&
+          formData.preferences.remotePreference.trim() !== '' &&
+          formData.preferences.salaryExpectation.trim() !== ''
+        );
+      default:
+        return true;
+    }
+  };
+
+  // Handle tab change with validation
+  const handleTabChange = (tabId) => {
+    const currentTab = tabs.find(tab => tab.id === activeTab);
+    
+    // If current tab has required fields that aren't filled
+    if (currentTab?.required && !checkRequiredFields(activeTab)) {
+      toast.error(`Please fill all required fields in ${currentTab.label} tab before switching`);
+      return;
+    }
+    
+    setActiveTab(tabId);
+  };
+
+  // Handle navigation away from settings
+  const handleNavigation = (e, targetPath) => {
+    // Check if user is trying to navigate away from settings
+    if (!isProfileComplete) {
+      e.preventDefault();
+      e.stopPropagation();
+      toast.error('Please complete all required profile information before leaving this page');
+    } else {
+      navigate(targetPath);
+    }
+  };
+
+  // Check on page load if user can leave settings
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (!isProfileComplete) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isProfileComplete]);
 
   // Cloudinary upload function
   const uploadToCloudinary = async (file, type) => {
@@ -206,9 +301,9 @@ const Settings = () => {
     try {
       const url = await uploadToCloudinary(file, field);
       handleInputChange(section, field, url);
-      setSaveStatus('File uploaded successfully!');
+      toast.success('File uploaded successfully!');
     } catch (error) {
-      setSaveStatus('Error uploading file');
+      toast.error('Error uploading file');
     }
   };
 
@@ -222,6 +317,7 @@ const Settings = () => {
           newSkill: ''
         }
       }));
+      toast.success('Skill added successfully!');
     }
   };
 
@@ -233,6 +329,7 @@ const Settings = () => {
         skills: prev.professional.skills.filter((_, i) => i !== index)
       }
     }));
+    toast.success('Skill removed successfully!');
   };
 
   const toggleJobType = (type) => {
@@ -322,17 +419,40 @@ const Settings = () => {
         portfolio: formData.social.portfolio,
         twitter: formData.social.twitter,
 
+        // Mark profile as completed if all required fields are filled
+        profileCompleted: isProfileComplete,
         updatedAt: new Date().toISOString()
       };
 
       await updateUserProfile(user.uid, updateData);
       setSaveStatus('success');
+      toast.success('Profile updated successfully!');
       
       // Clear status after 3 seconds
       setTimeout(() => setSaveStatus(''), 3000);
+
+      // If profile is complete, show success message and redirect to home
+      if (isProfileComplete && checkProfileCompletion()) {
+        setTimeout(() => {
+          Swal.fire({
+            title: '🎉 Profile Complete!',
+            text: 'Thanks for providing your information. Your profile is now fully set up!',
+            icon: 'success',
+            confirmButtonText: 'Go to Home',
+            confirmButtonColor: '#3b82f6',
+            showCancelButton: true,
+            cancelButtonText: 'Stay Here'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              navigate('/');
+            }
+          });
+        }, 1000);
+      }
     } catch (error) {
       console.error('Error updating profile:', error);
       setSaveStatus('error');
+      toast.error('Error updating profile. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -344,6 +464,16 @@ const Settings = () => {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
+      <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
+        <div className="flex items-center text-blue-800">
+          <FaExclamationTriangle className="mr-2" />
+          <span className="font-medium">Required Information</span>
+        </div>
+        <p className="text-blue-600 text-sm mt-1">
+          Please fill out all fields marked with * to complete your profile
+        </p>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Profile Photo Upload */}
         <div className="lg:col-span-2">
@@ -384,9 +514,17 @@ const Settings = () => {
             type="text"
             value={formData.personal.fullName}
             onChange={(e) => handleInputChange('personal', 'fullName', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              !formData.personal.fullName.trim() 
+                ? 'border-red-300 bg-red-50' 
+                : 'border-gray-200 bg-gray-50'
+            }`}
             placeholder="Enter your full name"
+            required
           />
+          {!formData.personal.fullName.trim() && (
+            <p className="text-red-500 text-xs mt-1">This field is required</p>
+          )}
         </div>
 
         <div>
@@ -419,7 +557,7 @@ const Settings = () => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Location
+            Location *
           </label>
           <div className="relative">
             <FaMapMarkerAlt className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -427,24 +565,40 @@ const Settings = () => {
               type="text"
               value={formData.personal.location}
               onChange={(e) => handleInputChange('personal', 'location', e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={`w-full pl-12 pr-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                !formData.personal.location.trim() 
+                  ? 'border-red-300 bg-red-50' 
+                  : 'border-gray-200 bg-gray-50'
+              }`}
               placeholder="City, Country"
+              required
             />
           </div>
+          {!formData.personal.location.trim() && (
+            <p className="text-red-500 text-xs mt-1">This field is required</p>
+          )}
         </div>
 
         {/* Bio */}
         <div className="lg:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Professional Bio
+            Professional Bio *
           </label>
           <textarea
             value={formData.personal.bio}
             onChange={(e) => handleInputChange('personal', 'bio', e.target.value)}
             rows={4}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none ${
+              !formData.personal.bio.trim() 
+                ? 'border-red-300 bg-red-50' 
+                : 'border-gray-200 bg-gray-50'
+            }`}
             placeholder="Tell us about yourself, your experience, and what you're looking for..."
+            required
           />
+          {!formData.personal.bio.trim() && (
+            <p className="text-red-500 text-xs mt-1">This field is required</p>
+          )}
         </div>
       </div>
     </motion.div>
@@ -459,7 +613,7 @@ const Settings = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Current Position *
+            Current Position
           </label>
           <input
             type="text"
@@ -562,47 +716,81 @@ const Settings = () => {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
+      <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
+        <div className="flex items-center text-blue-800">
+          <FaExclamationTriangle className="mr-2" />
+          <span className="font-medium">Required Information</span>
+        </div>
+        <p className="text-blue-600 text-sm mt-1">
+          Please fill out all fields marked with * to complete your profile
+        </p>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Highest Degree
+            Highest Degree *
           </label>
           <select
             value={formData.education.highestDegree}
             onChange={(e) => handleInputChange('education', 'highestDegree', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              !formData.education.highestDegree.trim() 
+                ? 'border-red-300 bg-red-50' 
+                : 'border-gray-200 bg-gray-50'
+            }`}
+            required
           >
             <option value="">Select highest degree</option>
             {degrees.map(degree => (
               <option key={degree} value={degree}>{degree}</option>
             ))}
           </select>
+          {!formData.education.highestDegree.trim() && (
+            <p className="text-red-500 text-xs mt-1">This field is required</p>
+          )}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Institution
+            Institution *
           </label>
           <input
             type="text"
             value={formData.education.institution}
             onChange={(e) => handleInputChange('education', 'institution', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              !formData.education.institution.trim() 
+                ? 'border-red-300 bg-red-50' 
+                : 'border-gray-200 bg-gray-50'
+            }`}
             placeholder="University or College"
+            required
           />
+          {!formData.education.institution.trim() && (
+            <p className="text-red-500 text-xs mt-1">This field is required</p>
+          )}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Field of Study
+            Field of Study *
           </label>
           <input
             type="text"
             value={formData.education.fieldOfStudy}
             onChange={(e) => handleInputChange('education', 'fieldOfStudy', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              !formData.education.fieldOfStudy.trim() 
+                ? 'border-red-300 bg-red-50' 
+                : 'border-gray-200 bg-gray-50'
+            }`}
             placeholder="e.g., Computer Science"
+            required
           />
+          {!formData.education.fieldOfStudy.trim() && (
+            <p className="text-red-500 text-xs mt-1">This field is required</p>
+          )}
         </div>
 
         <div>
@@ -642,11 +830,24 @@ const Settings = () => {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
+      <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
+        <div className="flex items-center text-blue-800">
+          <FaExclamationTriangle className="mr-2" />
+          <span className="font-medium">Required Information</span>
+        </div>
+        <p className="text-blue-600 text-sm mt-1">
+          Please fill out all fields marked with * to complete your profile
+        </p>
+      </div>
+
       {/* Job Types */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-4">
-          Preferred Job Types
+          Preferred Job Types *
         </label>
+        {formData.preferences.jobTypes.length === 0 && (
+          <p className="text-red-500 text-sm mb-3">Please select at least one job type</p>
+        )}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {jobTypes.map(type => (
             <label
@@ -681,7 +882,7 @@ const Settings = () => {
       {/* Remote Preference */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-4">
-          Remote Work Preference
+          Remote Work Preference *
         </label>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
@@ -762,7 +963,7 @@ const Settings = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Salary Expectation (Annual)
+            Salary Expectation (Annual) *
           </label>
           <div className="relative">
             <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">$</span>
@@ -770,10 +971,18 @@ const Settings = () => {
               type="number"
               value={formData.preferences.salaryExpectation}
               onChange={(e) => handleInputChange('preferences', 'salaryExpectation', e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={`w-full pl-10 pr-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                !formData.preferences.salaryExpectation.trim() 
+                  ? 'border-red-300 bg-red-50' 
+                  : 'border-gray-200 bg-gray-50'
+              }`}
               placeholder="e.g., 75000"
+              required
             />
           </div>
+          {!formData.preferences.salaryExpectation.trim() && (
+            <p className="text-red-500 text-xs mt-1">This field is required</p>
+          )}
         </div>
 
         <div>
@@ -939,6 +1148,55 @@ const Settings = () => {
           <p className="text-gray-600">
             Manage your profile information, preferences, and career details
           </p>
+          
+          {/* Profile Completion Status */}
+          <div className="mt-4 flex items-center justify-between">
+            <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${
+              isProfileComplete 
+                ? 'bg-green-100 text-green-800' 
+                : 'bg-yellow-100 text-yellow-800'
+            }`}>
+              {isProfileComplete ? (
+                <>
+                  <FaCheck className="mr-2" />
+                  Profile Complete
+                </>
+              ) : (
+                <>
+                  <FaExclamationTriangle className="mr-2" />
+                  Profile Incomplete
+                </>
+              )}
+            </div>
+            
+            {/* Home Button */}
+            <button
+              onClick={(e) => handleNavigation(e, '/')}
+              disabled={!isProfileComplete}
+              className={`flex items-center px-4 py-2 rounded-2xl font-medium transition-all duration-200 ${
+                isProfileComplete
+                  ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-lg shadow-blue-500/25'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              <FaHome className="mr-2" />
+              Go to Home
+            </button>
+          </div>
+          
+          {/* Completion Notice */}
+          {!isProfileComplete && (
+            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-2xl">
+              <div className="flex items-center text-yellow-800">
+                <FaExclamationTriangle className="mr-2" />
+                <span className="font-medium">Complete Your Profile</span>
+              </div>
+              <p className="text-yellow-700 text-sm mt-1">
+                Please complete all required fields in <strong>Personal</strong>, <strong>Education</strong>, 
+                and <strong>Preferences</strong> tabs before accessing other features.
+              </p>
+            </div>
+          )}
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -952,20 +1210,39 @@ const Settings = () => {
               <nav className="space-y-2">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
+                  const isRequired = tab.required;
+                  const isComplete = checkRequiredFields(tab.id);
+                  
                   return (
                     <button
                       key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`w-full flex items-center px-4 py-3 rounded-2xl text-left transition-all duration-200 ${
+                      onClick={() => handleTabChange(tab.id)}
+                      className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-left transition-all duration-200 ${
                         activeTab === tab.id
                           ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
                           : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                       }`}
                     >
-                      <Icon className={`mr-3 text-lg ${
-                        activeTab === tab.id ? 'text-white' : 'text-gray-400'
-                      }`} />
-                      <span className="font-medium">{tab.label}</span>
+                      <div className="flex items-center">
+                        <Icon className={`mr-3 text-lg ${
+                          activeTab === tab.id ? 'text-white' : 'text-gray-400'
+                        }`} />
+                        <span className="font-medium">{tab.label}</span>
+                        {isRequired && (
+                          <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${
+                            activeTab === tab.id 
+                              ? 'bg-white/20 text-white' 
+                              : isComplete 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                          }`}>
+                            {isComplete ? '✓' : '!'}
+                          </span>
+                        )}
+                      </div>
+                      {isRequired && !isComplete && activeTab !== tab.id && (
+                        <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                      )}
                     </button>
                   );
                 })}

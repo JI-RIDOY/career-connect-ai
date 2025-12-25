@@ -23,7 +23,7 @@ const Auth = () => {
               className="text-left mb-8 lg:mb-12"
             >
               <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent mb-4">
-                Career Connect AI
+                Creative Career AI
               </h1>
               <p className="text-lg text-gray-600 max-w-md mx-auto lg:mx-0">
                 Your gateway to connecting with top talent and amazing career opportunities.

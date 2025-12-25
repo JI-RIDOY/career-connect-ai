@@ -283,7 +283,7 @@ const Payment = () => {
                     "Full Mock Interviews (3 per month)",
                     "Professional CV Templates",
                     "AI-powered Cover Letters",
-                    "Career Insights Dashboard"
+                    "Career Insights Home"
                 ],
                 excluded: [
                     "Custom Career Coaching",

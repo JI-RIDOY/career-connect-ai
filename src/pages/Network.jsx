@@ -184,7 +184,7 @@ const Network = () => {
         body: JSON.stringify({
           senderId: user.uid,
           receiverId,
-          message: `Hi, I'd like to connect with you on Career Connect AI!`
+          message: `Hi, I'd like to connect with you on Creative Career AI!`
         }),
       });
 
@@ -349,7 +349,7 @@ const Network = () => {
             </button>
           )}
 
-          {!isRequest && !user.connectionStatus && (
+          {/* {!isRequest && !user.connectionStatus && (
             <button
               onClick={() => sendConnectionRequest(user.uid)}
               className="flex items-center justify-center px-4 py-2 bg-blue-500 text-white rounded-xl text-sm font-semibold hover:bg-blue-600 transition-colors hover:shadow-lg hover:shadow-blue-500/25 max-w-xs"
@@ -357,7 +357,7 @@ const Network = () => {
               <FaUserPlus className="mr-2" />
               Connect
             </button>
-          )}
+          )} */}
 
           {isRequest && (
             <div className="flex flex-col gap-3 mt-3">

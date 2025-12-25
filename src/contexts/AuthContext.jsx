@@ -99,6 +99,7 @@ export const AuthProvider = ({ children }) => {
         location: userData?.location || '',
         profession: userData?.profession || '',
         userType: userData?.userType || '',
+        profileCompleted: false,
         package: userData?.package || 'Basic',
         createdAt: new Date().toISOString(),
 

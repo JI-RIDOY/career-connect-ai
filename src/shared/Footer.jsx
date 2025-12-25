@@ -21,10 +21,8 @@ const Footer = () => {
 
     // User-specific routes (shown only when user is authenticated)
     const userRoutes = [
-        { name: 'Dashboard', path: '/dashboard' },
         { name: 'Pricing', path: '/pricing' },
         { name: 'Create Resume', path: '/create-resume' },
-        { name: 'Create CV', path: '/create-cv' },
         { name: 'Mock Interview', path: '/mock-interview' },
         { name: 'ATS Score', path: '/ats-score' },
         { name: 'Settings', path: '/settings' },

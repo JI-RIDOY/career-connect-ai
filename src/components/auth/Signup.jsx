@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  FaGithub, 
   FaGoogle, 
   FaEnvelope,
   FaLock,
@@ -18,6 +17,7 @@ import {
   FaSpinner
 } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
+import toast from 'react-hot-toast';
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -46,7 +46,7 @@ const SignUp = () => {
   // Redirect if user is already logged in
   useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      navigate('/');
     }
   }, [user, navigate]);
 
@@ -62,7 +62,6 @@ const SignUp = () => {
       color: 'border border-gray-200 text-gray-700 hover:shadow-lg',
       handler: handleGoogleSignUp
     },
-    { name: 'GitHub', icon: FaGithub, color: 'border border-gray-200 text-gray-700 hover:shadow-lg', handler: () => {} },
   ];
 
   const professions = [
@@ -96,9 +95,11 @@ const SignUp = () => {
     try {
       clearError();
       await signInWithGoogle();
-      navigate('/dashboard');
+      toast.success('Account created successfully! Please complete your profile.');
+      navigate('/settings');
     } catch (error) {
       console.error('Google sign up failed:', error);
+      toast.error('Google sign up failed. Please try again.');
     }
   }
 
@@ -158,7 +159,7 @@ const SignUp = () => {
         }));
       } catch (error) {
         console.error('Upload failed:', error);
-        // Keep the preview but show error (you can add error state for this)
+        toast.error('Failed to upload image. Please try again.');
       }
     } else {
       setFormData(prev => ({
@@ -178,12 +179,14 @@ const SignUp = () => {
       try {
         if (formData.password !== formData.confirmPassword) {
           setError("Passwords don't match");
+          toast.error("Passwords don't match");
           return;
         }
 
         // Wait for upload to complete if there's a photo
         if (formData.profilePhoto && !formData.cloudinaryUrl && uploading) {
           setError("Please wait for image upload to complete");
+          toast.error("Please wait for image upload to complete");
           return;
         }
 
@@ -199,8 +202,13 @@ const SignUp = () => {
 
         await signUp(formData.email, formData.password, userData);
         setCurrentStep(4);
+        toast.success('Account created successfully! Please complete your profile.');
+        setTimeout(() => {
+          navigate('/settings');
+        }, 2000);
       } catch (error) {
         console.error('Signup failed:', error);
+        toast.error('Signup failed. Please try again.');
       }
     }
   };
@@ -487,7 +495,7 @@ const SignUp = () => {
       </motion.div>
       
       <h3 className="text-2xl font-bold text-gray-900">
-        Welcome to Career Connect AI!
+        Welcome to Creative Career AI!
       </h3>
       
       <p className="text-gray-600">
@@ -546,7 +554,7 @@ const SignUp = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Join Career Connect AI
+            Join Creative Career AI
           </h2>
           <p className="text-gray-600">
             Create your account in just a few steps
@@ -643,10 +651,10 @@ const SignUp = () => {
                 boxShadow: "0 20px 40px -10px rgba(59, 130, 246, 0.4)" 
               }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/settings')}
               className="w-full bg-blue-500 text-white py-4 px-6 rounded-2xl text-base font-semibold hover:shadow-xl transition-all duration-200 shadow-lg shadow-blue-500/25 mt-6"
             >
-              Get Started
+              Complete Your Profile
             </motion.button>
           )}
         </form>
@@ -663,7 +671,7 @@ const SignUp = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3">
               {socialLogins.map((social) => (
                 <motion.button
                   key={social.name}
