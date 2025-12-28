@@ -18,6 +18,7 @@ import JobApplications from "../pages/JobApplications";
 import EditJob from "../pages/EditJob";
 import Network from "../pages/Network";
 import Messages from "../pages/Messages";
+import ResumeBuilder from "../pages/ResumeBuilder";
 
 export const router = createBrowserRouter([
   {
@@ -87,6 +88,10 @@ export const router = createBrowserRouter([
         {
           path:'/messages',
           Component: Messages,
+        },
+        {
+          path: '/create-resume',
+          Component: ResumeBuilder,
         }
     ]
   },
