@@ -48,7 +48,7 @@ const Messages = () => {
   // Initialize socket connection
   useEffect(() => {
     if (user) {
-      const newSocket = io('http://localhost:5000');
+      const newSocket = io('https://ai-server-sable.vercel.app');
       setSocket(newSocket);
 
       // Set user as online
@@ -154,7 +154,7 @@ const Messages = () => {
   const loadConversations = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/messages/conversations/${user.uid}`);
+      const response = await fetch(`https://ai-server-sable.vercel.app/api/messages/conversations/${user.uid}`);
       const data = await response.json();
       
       if (data.success) {
@@ -179,7 +179,7 @@ const Messages = () => {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/messages/conversation/${selectedConversation.conversationId}?${params}`
+        `https://ai-server-sable.vercel.app/api/messages/conversation/${selectedConversation.conversationId}?${params}`
       );
       
       const data = await response.json();

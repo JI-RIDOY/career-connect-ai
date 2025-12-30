@@ -126,7 +126,7 @@ const PostCreationModal = ({ isOpen, onClose, onPostCreated }) => {
             };
 
             // Send post to backend
-            const response = await fetch('http://localhost:5000/api/posts', {
+            const response = await fetch('https://ai-server-sable.vercel.app/api/posts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

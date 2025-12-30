@@ -36,7 +36,7 @@ const MyJobs = () => {
   const fetchMyJobs = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/jobs/recruiter/${user.uid}`);
+      const response = await fetch(`https://ai-server-sable.vercel.app/api/jobs/recruiter/${user.uid}`);
       const data = await response.json();
       
       if (data.success) {
@@ -53,7 +53,7 @@ const MyJobs = () => {
     if (!window.confirm('Are you sure you want to delete this job?')) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/jobs/${jobId}`, {
+      const response = await fetch(`https://ai-server-sable.vercel.app/api/jobs/${jobId}`, {
         method: 'DELETE'
       });
 
@@ -71,7 +71,7 @@ const MyJobs = () => {
 
   const handleStatusChange = async (jobId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/jobs/${jobId}`, {
+      const response = await fetch(`https://ai-server-sable.vercel.app/api/jobs/${jobId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

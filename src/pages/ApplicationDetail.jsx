@@ -38,7 +38,7 @@ const ApplicationDetail = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5000/api/jobs/applications/${id}?userId=${user.uid}&userType=${user.userType}`
+        `https://ai-server-sable.vercel.app/api/jobs/applications/${id}?userId=${user.uid}&userType=${user.userType}`
       );
       const data = await response.json();
       

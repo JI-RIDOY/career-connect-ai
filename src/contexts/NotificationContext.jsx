@@ -38,7 +38,7 @@ export const NotificationProvider = ({ children }) => {
   }, [user]);
 
   const setupSocket = () => {
-    const newSocket = io('http://localhost:5000');
+    const newSocket = io('https://ai-server-sable.vercel.app');
     setSocket(newSocket);
 
     // Listen for new notifications
@@ -65,7 +65,7 @@ export const NotificationProvider = ({ children }) => {
       }).toString();
 
       const response = await fetch(
-        `http://localhost:5000/api/notifications/user/${user.uid}?${queryParams}`
+        `https://ai-server-sable.vercel.app/api/notifications/user/${user.uid}?${queryParams}`
       );
       const data = await response.json();
       
@@ -89,7 +89,7 @@ export const NotificationProvider = ({ children }) => {
   const markAsRead = async (notificationId) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/notifications/mark-read/${notificationId}`,
+        `https://ai-server-sable.vercel.app/api/notifications/mark-read/${notificationId}`,
         {
           method: 'PUT',
           headers: {
@@ -125,7 +125,7 @@ export const NotificationProvider = ({ children }) => {
   const markAllAsRead = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/notifications/mark-all-read/${user.uid}`,
+        `https://ai-server-sable.vercel.app/api/notifications/mark-all-read/${user.uid}`,
         { method: 'PUT' }
       );
 
@@ -150,7 +150,7 @@ export const NotificationProvider = ({ children }) => {
   const deleteNotification = async (notificationId) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/notifications/${notificationId}`,
+        `https://ai-server-sable.vercel.app/api/notifications/${notificationId}`,
         {
           method: 'DELETE',
           headers: {
@@ -174,7 +174,7 @@ export const NotificationProvider = ({ children }) => {
   const clearAllNotifications = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/notifications/clear-all/${user.uid}`,
+        `https://ai-server-sable.vercel.app/api/notifications/clear-all/${user.uid}`,
         { method: 'DELETE' }
       );
 

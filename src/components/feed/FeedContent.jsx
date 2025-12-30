@@ -81,7 +81,7 @@ const CreatePostModal = React.memo(({ isOpen, onClose, onSuccess }) => {
 
         setActionLoading(true);
         try {
-            const res = await fetch('http://localhost:5000/api/posts', {
+            const res = await fetch('https://ai-server-sable.vercel.app/api/posts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -243,7 +243,7 @@ const FeedContent = () => {
     const fetchPosts = async () => {
         try {
             setLoading(true);
-            const res = await fetch('http://localhost:5000/api/posts');
+            const res = await fetch('https://ai-server-sable.vercel.app/api/posts');
             const result = await res.json();
             if (result.success) {
                 setPosts(result.posts || []);
@@ -263,7 +263,7 @@ const FeedContent = () => {
         if (!user) return setError('Login required');
         setActionLoading(`like-${postId}`);
         try {
-            const res = await fetch(`http://localhost:5000/api/posts/${postId}/like`, {
+            const res = await fetch(`https://ai-server-sable.vercel.app/api/posts/${postId}/like`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId: user.uid, userEmail: user.email }),
@@ -281,7 +281,7 @@ const FeedContent = () => {
         if (!commentText.trim() || !user) return;
         setActionLoading(`comment-${postId}`);
         try {
-            const res = await fetch(`http://localhost:5000/api/posts/${postId}/comment`, {
+            const res = await fetch(`https://ai-server-sable.vercel.app/api/posts/${postId}/comment`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -309,7 +309,7 @@ const FeedContent = () => {
         if (!window.confirm('Delete this post?')) return;
         setActionLoading(`delete-${postId}`);
         try {
-            await fetch(`http://localhost:5000/api/posts/${postId}`, {
+            await fetch(`https://ai-server-sable.vercel.app/api/posts/${postId}`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId: user?.uid }),

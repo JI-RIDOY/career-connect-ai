@@ -13,7 +13,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (user && !socket) {
-      const newSocket = io('http://localhost:5000', {
+      const newSocket = io('https://ai-server-sable.vercel.app', {
         withCredentials: true,
         transports: ['websocket', 'polling']
       });

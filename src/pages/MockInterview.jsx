@@ -468,7 +468,7 @@ const MockInterview = () => {
                 answers: results.answers
             };
 
-            const response = await fetch('http://localhost:5000/api/interviews/save', {
+            const response = await fetch('https://ai-server-sable.vercel.app/api/interviews/save', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

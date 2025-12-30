@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
   // Save user to backend
   const saveUserToBackend = async (userData) => {
     try {
-      const response = await fetch('http://localhost:5000/api/users', {
+      const response = await fetch('https://ai-server-sable.vercel.app/api/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
   // Get user from backend
   const getUserFromBackend = async (uid) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${uid}`);
+      const response = await fetch(`https://ai-server-sable.vercel.app/api/users/${uid}`);
       
       if (!response.ok) {
         // If user not found (404), return null
@@ -223,7 +223,7 @@ export const AuthProvider = ({ children }) => {
   // Update user profile
   const updateUserProfile = async (uid, updateData) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${uid}`, {
+      const response = await fetch(`https://ai-server-sable.vercel.app/api/users/${uid}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

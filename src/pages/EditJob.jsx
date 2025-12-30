@@ -47,7 +47,7 @@ const EditJob = () => {
   const fetchJob = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/jobs/edit/${id}?recruiterId=${user.uid}`);
+      const response = await fetch(`https://ai-server-sable.vercel.app/api/jobs/edit/${id}?recruiterId=${user.uid}`);
       const data = await response.json();
       
       if (data.success) {
@@ -84,7 +84,7 @@ const EditJob = () => {
         updatedAt: new Date().toISOString()
       };
 
-      const response = await fetch(`http://localhost:5000/api/jobs/${id}`, {
+      const response = await fetch(`https://ai-server-sable.vercel.app/api/jobs/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

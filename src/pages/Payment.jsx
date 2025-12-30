@@ -57,7 +57,7 @@ const PaymentModal = ({ isOpen, onClose, plan, billingCycle, user, onPaymentSucc
 
         try {
             // Create payment intent on backend
-            const response = await fetch('http://localhost:5000/api/payments/create-payment-intent', {
+            const response = await fetch('https://ai-server-sable.vercel.app/api/payments/create-payment-intent', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -94,7 +94,7 @@ const PaymentModal = ({ isOpen, onClose, plan, billingCycle, user, onPaymentSucc
                 setError(result.error.message);
             } else {
                 // Payment successful - confirm with backend
-                const confirmResponse = await fetch('http://localhost:5000/api/payments/confirm-payment', {
+                const confirmResponse = await fetch('https://ai-server-sable.vercel.app/api/payments/confirm-payment', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -230,7 +230,7 @@ const Payment = () => {
         const fetchUserData = async () => {
             if (user?.uid) {
                 try {
-                    const response = await fetch(`http://localhost:5000/api/users/${user.uid}`);
+                    const response = await fetch(`https://ai-server-sable.vercel.app/api/users/${user.uid}`);
                     const data = await response.json();
                     if (data.success) {
                         setUserData(data.user);
@@ -341,7 +341,7 @@ const Payment = () => {
 
     const updateUserPackage = async (packageName) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/users/${user.uid}`, {
+            const response = await fetch(`https://ai-server-sable.vercel.app/api/users/${user.uid}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -371,7 +371,7 @@ const Payment = () => {
         const fetchUserData = async () => {
             if (user?.uid) {
                 try {
-                    const response = await fetch(`http://localhost:5000/api/users/${user.uid}`);
+                    const response = await fetch(`https://ai-server-sable.vercel.app/api/users/${user.uid}`);
                     const data = await response.json();
                     if (data.success) {
                         setUserData(data.user);
