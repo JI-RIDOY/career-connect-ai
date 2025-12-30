@@ -38,7 +38,7 @@ const ApplicationDetail = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://ai-server-sable.vercel.app/api/jobs/applications/${id}?userId=${user.uid}&userType=${user.userType}`
+        `https://ai-server-6xda.onrender.com/api/jobs/applications/${id}?userId=${user.uid}&userType=${user.userType}`
       );
       const data = await response.json();
       

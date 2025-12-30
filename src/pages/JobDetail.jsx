@@ -48,7 +48,7 @@ const JobDetail = () => {
   const fetchJob = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`https://ai-server-sable.vercel.app/api/jobs/${id}`);
+      const response = await fetch(`https://ai-server-6xda.onrender.com/api/jobs/${id}`);
       const data = await response.json();
       
       if (data.success) {
@@ -78,7 +78,7 @@ const JobDetail = () => {
         ...applicationData
       };
 
-      const response = await fetch(`https://ai-server-sable.vercel.app/api/jobs/${id}/apply`, {
+      const response = await fetch(`https://ai-server-6xda.onrender.com/api/jobs/${id}/apply`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

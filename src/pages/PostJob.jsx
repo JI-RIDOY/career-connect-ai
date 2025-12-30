@@ -50,7 +50,7 @@ const PostJob = () => {
 
   const checkUserType = async () => {
     try {
-      const response = await fetch(`https://ai-server-sable.vercel.app/api/users/${user.uid}`);
+      const response = await fetch(`https://ai-server-6xda.onrender.com/api/users/${user.uid}`);
       const data = await response.json();
       
       if (data.success && data.user.userType !== 'recruiter') {
@@ -81,7 +81,7 @@ const PostJob = () => {
         recruiterName: user.displayName || user.email
       };
 
-      const response = await fetch('https://ai-server-sable.vercel.app/api/jobs', {
+      const response = await fetch('https://ai-server-6xda.onrender.com/api/jobs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

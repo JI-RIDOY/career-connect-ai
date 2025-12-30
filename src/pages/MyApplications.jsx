@@ -36,7 +36,7 @@ const MyApplications = () => {
   const fetchApplications = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`https://ai-server-sable.vercel.app/api/jobs/applied/${user.uid}`);
+      const response = await fetch(`https://ai-server-6xda.onrender.com/api/jobs/applied/${user.uid}`);
       const data = await response.json();
       
       if (data.success) {

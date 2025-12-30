@@ -53,7 +53,7 @@ const ResumeBuilder = () => {
     
     try {
       setLoading(true);
-      const response = await fetch(`https://ai-server-sable.vercel.app/api/resumes/user/${user.uid}`);
+      const response = await fetch(`https://ai-server-6xda.onrender.com/api/resumes/user/${user.uid}`);
       const data = await response.json();
       setResumes(data);
     } catch (error) {
@@ -153,8 +153,8 @@ const ResumeBuilder = () => {
       setSaving(true);
       
       const url = editingResumeId 
-        ? `https://ai-server-sable.vercel.app/api/resumes/${editingResumeId}`
-        : 'https://ai-server-sable.vercel.app/api/resumes';
+        ? `https://ai-server-6xda.onrender.com/api/resumes/${editingResumeId}`
+        : 'https://ai-server-6xda.onrender.com/api/resumes';
       
       const method = editingResumeId ? 'PUT' : 'POST';
       
@@ -248,7 +248,7 @@ const ResumeBuilder = () => {
       showLoaderOnConfirm: true,
       preConfirm: async () => {
         try {
-          const response = await fetch(`https://ai-server-sable.vercel.app/api/resumes/${id}`, {
+          const response = await fetch(`https://ai-server-6xda.onrender.com/api/resumes/${id}`, {
             method: 'DELETE'
           });
           
@@ -304,7 +304,7 @@ const ResumeBuilder = () => {
         cancelButtonText: 'Cancel',
         showLoaderOnConfirm: true,
         preConfirm: async () => {
-          const response = await fetch('https://ai-server-sable.vercel.app/api/resumes/generate-pdf', {
+          const response = await fetch('https://ai-server-6xda.onrender.com/api/resumes/generate-pdf', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

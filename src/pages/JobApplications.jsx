@@ -42,7 +42,7 @@ const JobApplications = () => {
       setLoading(true);
       
       // Fetch job details
-      const jobResponse = await fetch(`https://ai-server-sable.vercel.app/api/jobs/${id}`);
+      const jobResponse = await fetch(`https://ai-server-6xda.onrender.com/api/jobs/${id}`);
       const jobData = await jobResponse.json();
       
       if (jobData.success) {
@@ -56,7 +56,7 @@ const JobApplications = () => {
         
         // Fetch applications for this job
         const appsResponse = await fetch(
-          `https://ai-server-sable.vercel.app/api/jobs/${id}/applications?recruiterId=${user.uid}`
+          `https://ai-server-6xda.onrender.com/api/jobs/${id}/applications?recruiterId=${user.uid}`
         );
         const appsData = await appsResponse.json();
         
@@ -75,7 +75,7 @@ const JobApplications = () => {
   const handleStatusChange = async (applicationId, newStatus) => {
     try {
       const response = await fetch(
-        `https://ai-server-sable.vercel.app/api/jobs/applications/${applicationId}/status`,
+        `https://ai-server-6xda.onrender.com/api/jobs/applications/${applicationId}/status`,
         {
           method: 'PUT',
           headers: {

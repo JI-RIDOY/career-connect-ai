@@ -93,7 +93,7 @@ const Network = () => {
 
   const loadAllUsers = async () => {
     try {
-      const response = await fetch('https://ai-server-sable.vercel.app/api/users');
+      const response = await fetch('https://ai-server-6xda.onrender.com/api/users');
       const data = await response.json();
       
       if (data.success) {
@@ -102,7 +102,7 @@ const Network = () => {
             .filter(u => u.uid !== user.uid)
             .map(async (userItem) => {
               const statusResponse = await fetch(
-                `https://ai-server-sable.vercel.app/api/connections/status/${user.uid}/${userItem.uid}`
+                `https://ai-server-6xda.onrender.com/api/connections/status/${user.uid}/${userItem.uid}`
               );
               const statusData = await statusResponse.json();
               
@@ -124,7 +124,7 @@ const Network = () => {
 
   const loadConnections = async () => {
     try {
-      const response = await fetch(`https://ai-server-sable.vercel.app/api/connections/user/${user.uid}?status=accepted`);
+      const response = await fetch(`https://ai-server-6xda.onrender.com/api/connections/user/${user.uid}?status=accepted`);
       const data = await response.json();
       
       if (data.success) {
@@ -143,7 +143,7 @@ const Network = () => {
 
   const loadPendingRequests = async () => {
     try {
-      const response = await fetch(`https://ai-server-sable.vercel.app/api/connections/pending/${user.uid}`);
+      const response = await fetch(`https://ai-server-6xda.onrender.com/api/connections/pending/${user.uid}`);
       const data = await response.json();
       
       if (data.success) {
@@ -156,7 +156,7 @@ const Network = () => {
 
   const loadSentRequests = async () => {
     try {
-      const response = await fetch(`https://ai-server-sable.vercel.app/api/connections/sent/${user.uid}`);
+      const response = await fetch(`https://ai-server-6xda.onrender.com/api/connections/sent/${user.uid}`);
       const data = await response.json();
       
       if (data.success) {
@@ -176,14 +176,14 @@ const Network = () => {
 
   const loadSuggestions = async () => {
     try {
-      const response = await fetch(`https://ai-server-sable.vercel.app/api/connections/suggestions/${user.uid}`);
+      const response = await fetch(`https://ai-server-6xda.onrender.com/api/connections/suggestions/${user.uid}`);
       const data = await response.json();
       
       if (data.success) {
         const suggestionsWithStatus = await Promise.all(
           data.suggestions.map(async (suggestion) => {
             const statusResponse = await fetch(
-              `https://ai-server-sable.vercel.app/api/connections/status/${user.uid}/${suggestion.uid}`
+              `https://ai-server-6xda.onrender.com/api/connections/status/${user.uid}/${suggestion.uid}`
             );
             const statusData = await statusResponse.json();
             
@@ -204,7 +204,7 @@ const Network = () => {
 
   const loadStats = async () => {
     try {
-      const response = await fetch(`https://ai-server-sable.vercel.app/api/connections/stats/${user.uid}`);
+      const response = await fetch(`https://ai-server-6xda.onrender.com/api/connections/stats/${user.uid}`);
       const data = await response.json();
       
       if (data.success) {
@@ -217,7 +217,7 @@ const Network = () => {
 
   const loadProfessions = async () => {
     try {
-      const response = await fetch('https://ai-server-sable.vercel.app/api/users/professions');
+      const response = await fetch('https://ai-server-6xda.onrender.com/api/users/professions');
       const data = await response.json();
       
       if (data.success) {
@@ -230,7 +230,7 @@ const Network = () => {
 
   const sendConnectionRequest = async (receiverId) => {
     try {
-      const response = await fetch('https://ai-server-sable.vercel.app/api/connections/send-request', {
+      const response = await fetch('https://ai-server-6xda.onrender.com/api/connections/send-request', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -255,7 +255,7 @@ const Network = () => {
 
   const acceptConnectionRequest = async (requestId) => {
     try {
-      const response = await fetch(`https://ai-server-sable.vercel.app/api/connections/accept-request/${requestId}`, {
+      const response = await fetch(`https://ai-server-6xda.onrender.com/api/connections/accept-request/${requestId}`, {
         method: 'POST',
       });
 
@@ -273,7 +273,7 @@ const Network = () => {
 
   const rejectConnectionRequest = async (requestId) => {
     try {
-      const response = await fetch(`https://ai-server-sable.vercel.app/api/connections/reject-request/${requestId}`, {
+      const response = await fetch(`https://ai-server-6xda.onrender.com/api/connections/reject-request/${requestId}`, {
         method: 'POST',
       });
 
@@ -291,7 +291,7 @@ const Network = () => {
 
   const withdrawConnectionRequest = async (requestId) => {
     try {
-      const response = await fetch(`https://ai-server-sable.vercel.app/api/connections/withdraw-request/${requestId}`, {
+      const response = await fetch(`https://ai-server-6xda.onrender.com/api/connections/withdraw-request/${requestId}`, {
         method: 'DELETE',
       });
 
@@ -309,7 +309,7 @@ const Network = () => {
 
   const removeConnection = async (connectionId) => {
     try {
-      const response = await fetch(`https://ai-server-sable.vercel.app/api/connections/remove-connection/${connectionId}`, {
+      const response = await fetch(`https://ai-server-6xda.onrender.com/api/connections/remove-connection/${connectionId}`, {
         method: 'DELETE',
       });
 
