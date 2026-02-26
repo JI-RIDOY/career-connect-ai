@@ -20,6 +20,8 @@ import Network from "../pages/Network";
 import Messages from "../pages/Messages";
 import ResumeBuilder from "../pages/ResumeBuilder";
 import ProtectedRoute from "../components/ProtectedRoute";
+import About from "../pages/About";
+import Features from "../pages/Features";
 
 export const router = createBrowserRouter([
   {
@@ -174,4 +176,12 @@ export const router = createBrowserRouter([
       },
     ],
   },
+  {
+    path: '/about',
+    Component: About
+  },
+  {
+    path: "/features",
+    Component: Features,
+  }
 ]);

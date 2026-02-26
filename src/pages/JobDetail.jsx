@@ -14,7 +14,8 @@ import {
   FaPaperPlane,
   FaFileAlt,
   FaClock,
-  FaRegBuilding
+  FaRegBuilding,
+  FaCheckCircle // add verified icon
 } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -48,9 +49,9 @@ const JobDetail = () => {
   const fetchJob = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`https://ai-server-6xda.onrender.com/api/jobs/${id}`);
+      const response = await fetch(`http://localhost:5000/api/jobs/${id}`);
       const data = await response.json();
-      
+
       if (data.success) {
         setJob(data.job);
       }
@@ -63,7 +64,7 @@ const JobDetail = () => {
 
   const handleApply = async (e) => {
     e.preventDefault();
-    
+
     if (!user) {
       navigate('/auth/login');
       return;
@@ -78,7 +79,7 @@ const JobDetail = () => {
         ...applicationData
       };
 
-      const response = await fetch(`https://ai-server-6xda.onrender.com/api/jobs/${id}/apply`, {
+      const response = await fetch(`http://localhost:5000/api/jobs/${id}/apply`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -168,6 +169,9 @@ const JobDetail = () => {
                     <div className="flex items-center text-gray-600 text-lg mb-2">
                       <FaRegBuilding className="mr-3" />
                       <span className="font-semibold">{job.company}</span>
+                      {job.isVerified && (
+                        <FaCheckCircle className="ml-2 text-blue-500" title="Verified Company" />
+                      )}
                     </div>
                   </div>
                   {job.salary && (
@@ -293,14 +297,14 @@ const JobDetail = () => {
               ) : (
                 <>
                   <h3 className="text-xl font-semibold text-gray-900 mb-6">Apply for this Position</h3>
-                  
+
                   <div className="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium text-blue-900">Application Deadline</span>
                       <FaClock className="text-blue-500" />
                     </div>
                     <p className="text-blue-700 font-semibold">
-                      {job.applicationDeadline 
+                      {job.applicationDeadline
                         ? formatDate(job.applicationDeadline)
                         : 'No deadline specified'
                       }
