@@ -468,7 +468,7 @@ const MockInterview = () => {
                 answers: results.answers
             };
 
-            const response = await fetch('https://ai-server-6xda.onrender.com/api/interviews/save', {
+            const response = await fetch('https://ai-server-1-ckgg.onrender.com/api/interviews/save', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

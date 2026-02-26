@@ -13,7 +13,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (user && !socket) {
-      const newSocket = io('https://ai-server-6xda.onrender.com', {
+      const newSocket = io('https://ai-server-1-ckgg.onrender.com', {
         withCredentials: true,
         transports: ['websocket', 'polling']
       });

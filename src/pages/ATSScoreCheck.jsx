@@ -47,7 +47,7 @@ const ATSScoreCheck = () => {
     }
 
     try {
-      const response = await fetch('https://ai-server-6xda.onrender.com/api/ats/check-score', {
+      const response = await fetch('https://ai-server-1-ckgg.onrender.com/api/ats/check-score', {
         method: 'POST',
         body: formData,
       });
@@ -75,7 +75,7 @@ const ATSScoreCheck = () => {
     if (!user?.email) return;
 
     try {
-      const response = await fetch(`https://ai-server-6xda.onrender.com/api/ats/history/${user.email}`);
+      const response = await fetch(`https://ai-server-1-ckgg.onrender.com/api/ats/history/${user.email}`);
       const data = await response.json();
 
       if (data.success) {

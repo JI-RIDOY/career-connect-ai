@@ -38,7 +38,7 @@ export const NotificationProvider = ({ children }) => {
   }, [user]);
 
   const setupSocket = () => {
-    const newSocket = io('https://ai-server-6xda.onrender.com');
+    const newSocket = io('https://ai-server-1-ckgg.onrender.com');
     setSocket(newSocket);
 
     // Listen for new notifications
@@ -65,7 +65,7 @@ export const NotificationProvider = ({ children }) => {
       }).toString();
 
       const response = await fetch(
-        `https://ai-server-6xda.onrender.com/api/notifications/user/${user.uid}?${queryParams}`
+        `https://ai-server-1-ckgg.onrender.com/api/notifications/user/${user.uid}?${queryParams}`
       );
       const data = await response.json();
       
@@ -89,7 +89,7 @@ export const NotificationProvider = ({ children }) => {
   const markAsRead = async (notificationId) => {
     try {
       const response = await fetch(
-        `https://ai-server-6xda.onrender.com/api/notifications/mark-read/${notificationId}`,
+        `https://ai-server-1-ckgg.onrender.com/api/notifications/mark-read/${notificationId}`,
         {
           method: 'PUT',
           headers: {
@@ -125,7 +125,7 @@ export const NotificationProvider = ({ children }) => {
   const markAllAsRead = async () => {
     try {
       const response = await fetch(
-        `https://ai-server-6xda.onrender.com/api/notifications/mark-all-read/${user.uid}`,
+        `https://ai-server-1-ckgg.onrender.com/api/notifications/mark-all-read/${user.uid}`,
         { method: 'PUT' }
       );
 
@@ -150,7 +150,7 @@ export const NotificationProvider = ({ children }) => {
   const deleteNotification = async (notificationId) => {
     try {
       const response = await fetch(
-        `https://ai-server-6xda.onrender.com/api/notifications/${notificationId}`,
+        `https://ai-server-1-ckgg.onrender.com/api/notifications/${notificationId}`,
         {
           method: 'DELETE',
           headers: {
@@ -174,7 +174,7 @@ export const NotificationProvider = ({ children }) => {
   const clearAllNotifications = async () => {
     try {
       const response = await fetch(
-        `https://ai-server-6xda.onrender.com/api/notifications/clear-all/${user.uid}`,
+        `https://ai-server-1-ckgg.onrender.com/api/notifications/clear-all/${user.uid}`,
         { method: 'DELETE' }
       );
 

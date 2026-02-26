@@ -47,7 +47,7 @@ const Navbar = () => {
     const fetchUserData = async () => {
       if (user?.uid) {
         try {
-          const response = await fetch(`https://ai-server-6xda.onrender.com/api/users/${user.uid}`);
+          const response = await fetch(`https://ai-server-1-ckgg.onrender.com/api/users/${user.uid}`);
           const data = await response.json();
           if (data.success) {
             if (data.user.package) {

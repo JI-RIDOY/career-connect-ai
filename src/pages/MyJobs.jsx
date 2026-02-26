@@ -37,7 +37,7 @@ const MyJobs = () => {
   const fetchMyJobs = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/jobs/recruiter/${user.uid}`);
+      const response = await fetch(`https://ai-server-1-ckgg.onrender.com/api/jobs/recruiter/${user.uid}`);
       const data = await response.json();
 
       if (data.success) {
@@ -54,7 +54,7 @@ const MyJobs = () => {
     if (!window.confirm('Are you sure you want to delete this job?')) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/jobs/${jobId}?recruiterId=${user.uid}`, {
+      const response = await fetch(`https://ai-server-1-ckgg.onrender.com/api/jobs/${jobId}?recruiterId=${user.uid}`, {
         method: 'DELETE'
       });
 
